@@ -4,16 +4,23 @@ namespace Client.Services;
 using System;
 using System.Collections.Generic;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Client.Models;
 using Client.Utils;
-using HandyBlazorComponents.Interfaces;
+using HandyBlazorComponents.Abstracts;
+using HandyBlazorComponents.Models;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 using static HandyBlazorComponents.Models.ServiceResponses;
 
-public class GridStateService : IHandyGridState<HandyGridEntity, PasswordAccountDTO>
+public class GridStateService : HandyGridStateAbstract<HandyGridEntity, PasswordAccountDTO>
 {
-    public GridValidationResponse ValidationChecks(HandyGridEntity item, List<string> columns)
+    
+    public GridStateService(List<HandyGridEntity> Items, List<string> ReadonlyColumns, string ExampleFileUploadUrl, Func<IEnumerable<HandyGridEntity>, Task> OnSubmitFile, List<NamedRenderFragment<HandyGridEntity>>? ViewModeFragments, List<NamedRenderFragment<HandyGridEntity>>? EditModeFragments) : base(Items, ReadonlyColumns, ExampleFileUploadUrl, OnSubmitFile, ViewModeFragments, EditModeFragments)
+    {
+    }
+
+    public override GridValidationResponse ValidationChecks(HandyGridEntity item, List<string> columns)
     {
         //var columns = typeof(PasswordAccountDTO).GetProperties().Select(prop => prop.Name).Except(ReadonlyColumns).ToList();
         Dictionary<int, List<string>> errorMessagesDict = new();
@@ -98,13 +105,6 @@ public class GridStateService : IHandyGridState<HandyGridEntity, PasswordAccount
 
         return new GridValidationResponse(Flag: true, null);
     }
-    public List<HandyGridEntity> Items { get; set; }
-    public Dictionary<string, RenderFragment<HandyGridEntity>> EditModeFragments { get; set; }
-    public Dictionary<string, RenderFragment<HandyGridEntity>> ViewModeFragments { get; set; }
-    public IReadOnlyCollection<string> ReadonlyColumns { get; set; }
-    public string ExampleFileUploadUrl { get; set; } = "templates/example.csv";
-    public Func<IEnumerable<HandyGridEntity>, Task> OnSubmitFile {get;set;}
-
 
 }
 

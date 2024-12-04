@@ -1,6 +1,6 @@
 
 using HandyBlazorComponents.Abstracts;
-using HandyBlazorComponents.Interfaces;
+
 using Shared.Models;
 
 namespace Client.Models;
@@ -48,7 +48,7 @@ public class HandyGridEntity : HandyGridEntityAbstract<PasswordAccountDTO>
     {
         Object.Id = id;
     }
-    
+
     public override void ParsePropertiesFromCSV(Dictionary<string, object> properties)
     {
         base.ParsePropertiesFromCSV(properties);

@@ -11,7 +11,7 @@ using Client.Utils;
 using Blazored.SessionStorage;
 using Shared.Models;
 using Client.Models;
-using HandyBlazorComponents.Interfaces;
+
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -45,7 +45,6 @@ builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddSingleton<IHandyGridState<HandyGridEntity, PasswordAccountDTO>, GridStateService>();
 
 
 await builder.Build().RunAsync();
