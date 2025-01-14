@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Client",
   "resources": {
-    "hash": "sha256-1tGA1ACWwIOIVgeEaJ+pzt93lkNdwwLXWmrkRcTlrWM=",
+    "hash": "sha256-886CKJElrtv+jfZmZhN4O/E51q8xXcm2PX+Yl8v0h+Q=",
     "jsModuleNative": {
       "dotnet.native.8.0.8.msxsmgfeb6.js": "sha256-juC5sA7gHTLXFEhAKgdM2/RavswpwCtDfjYGsAz2FXg="
     },
@@ -20,9 +20,9 @@
       "BlazorBootstrap.wasm": "sha256-+jeQHjqZsB2T7+hDAnW2nNVPF+WG1FXmZK6+DEt+gbA=",
       "Blazored.LocalStorage.wasm": "sha256-OaMAAd5n7ORfyur5e3QIyEVKJ76MKIvwbg7/icnnYcU=",
       "Blazored.SessionStorage.wasm": "sha256-nQXuCGHos7iwp2WxRUgarKmWgJYChaVQp2NajgNU3V8=",
-      "Client.wasm": "sha256-7lEgVdPXfbfjkSPV6FVWmCdAPqgNAaKNrJ7syTld59o=",
+      "Client.wasm": "sha256-pk0UPHxd8DKVCik15CXjEteRr/+/Dv6oDteC+RVyo8Y=",
       "CsvHelper.wasm": "sha256-BXz5RCSFBrg3KCDZD4lxgyWmw1YH6vUT0N/oIQdCKfA=",
-      "HandyBlazorComponents.wasm": "sha256-yDk4xiOE6OQ0kkic4oOLQ46zEgK0+8cVX/qJh71HmFo=",
+      "HandyBlazorComponents.wasm": "sha256-ymQm5YjdJxCE8llVSal3dUrl2O/RIDyG5dvZAYnJYsY=",
       "Microsoft.AspNetCore.Authorization.wasm": "sha256-Da/R37Ag0zIjWnfRrl/kd09CREv24dqNyDtkdD3qPvQ=",
       "Microsoft.AspNetCore.Components.Authorization.wasm": "sha256-WToepQ0BtcGyJwxXuw0dGKHWiWSqLMBE2X+Xy8whUb0=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-PdwhtsA5wncrjKBD/bYhO3P0W8yeauEn2geyZ25iqlI=",
@@ -47,7 +47,7 @@
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-rhDkGvVEd5YGb2JsVk1xQC7gCF8TXNfpDfo9dGFhuyI=",
       "Newtonsoft.Json.wasm": "sha256-GlXMWKvDs45M2pACoR3Y4Qh8mcrOZGljqmvJY+6JZ5s=",
       "Radzen.Blazor.wasm": "sha256-m0lbIUdwvlmkRv0xlVFBdzkVg4auNaPxJ9XFZmRfEVI=",
-      "Shared.wasm": "sha256-bLX8123uZiUY53YqVumOyP7Mvd3NTcn0OEpfjeZpiV4=",
+      "Shared.wasm": "sha256-Eq8pldJ4dV1tE/kkgYIpLgwzd4xIYyvbrSpWQo8pdc4=",
       "System.Collections.Concurrent.wasm": "sha256-nJYZHc8YSEs9SS/jJutb2UB819I7xdQEnoXa80GiuJQ=",
       "System.Collections.Immutable.wasm": "sha256-k07lAdIvHU9nVLG7jnaaLMpZMzEY62M/L3XuVKif2lI=",
       "System.Collections.NonGeneric.wasm": "sha256-sK8kDnVci1HIJi248etu7BdPdUYv/5OTn6F3IIrht2A=",

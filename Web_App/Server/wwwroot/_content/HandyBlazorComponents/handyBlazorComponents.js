@@ -11,6 +11,22 @@ window.dropdownInterop = {
     }
 };
 
+window.downloadFile = (base64Data, contentType, fileName) => {
+    const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: contentType });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary anchor element
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+
+    // Trigger download and clean up
+    a.click();
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
 window.saveAsFile = function(filename, fileContent)
 {
     var link = document.createElement('a')
