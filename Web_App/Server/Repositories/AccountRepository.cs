@@ -65,7 +65,7 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
 
         // your custom new user insert goes here (below is just an example)
 
-        // add user to stock user table if they arent in it already
+        // add user to the user table if they arent in it already
         if (await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.UmsUserid == getUser.Id) is null)
         {
             try
