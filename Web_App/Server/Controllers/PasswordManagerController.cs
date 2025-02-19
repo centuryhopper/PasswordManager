@@ -39,6 +39,7 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         return Ok(passwordRecord);
     }
 
+    [AllowAnonymous]
     [HttpGet("test")]
     public IActionResult Test()
     {
