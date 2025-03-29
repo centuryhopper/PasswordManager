@@ -1,4 +1,5 @@
 global using ConfigurationProvider = Server.Utils.ConfigurationProvider;
+global using Shared;
 
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
