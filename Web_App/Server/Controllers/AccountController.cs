@@ -49,6 +49,7 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
         return Ok(response);
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDTO loginDTO)
     {
