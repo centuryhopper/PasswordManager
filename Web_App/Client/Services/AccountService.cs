@@ -46,11 +46,11 @@ public class AccountService : IAccountService
 
             if (loginDTO.RememberMe)
             {
-                await localStorageService.SetItemAsync("authToken", loginResponse!.Token);
+                await localStorageService.SetItemAsync(JwtConfig.JWT_TOKEN_NAME, loginResponse!.Token);
             }
             else
             {
-                await sessionStorageService.SetItemAsync("authToken", loginResponse!.Token);
+                await sessionStorageService.SetItemAsync(JwtConfig.JWT_TOKEN_NAME, loginResponse!.Token);
             }
 
             ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsAuthenticated(loginResponse!.Token);
@@ -66,8 +66,8 @@ public class AccountService : IAccountService
 
     public async Task LogoutAsync()
     {
-        await localStorageService.RemoveItemAsync("authToken");
-        await sessionStorageService.RemoveItemAsync("authToken");
+        await localStorageService.RemoveItemAsync(JwtConfig.JWT_TOKEN_NAME);
+        await sessionStorageService.RemoveItemAsync(JwtConfig.JWT_TOKEN_NAME);
         ((ApiAuthenticationStateProvider)authenticationStateProvider).MarkUserAsLoggedOut();
         httpClient.DefaultRequestHeaders.Authorization = null;
     }

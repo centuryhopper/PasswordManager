@@ -1,5 +1,3 @@
-
-
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
@@ -19,8 +17,8 @@ public class AuthorizationMessageHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = await sessionStorageService.GetItemAsync<string>("authToken") ?? await localStorage.GetItemAsync<string>("authToken");
-        
+        var token = await sessionStorageService.GetItemAsync<string>(JwtConfig.JWT_TOKEN_NAME) ?? await localStorage.GetItemAsync<string>(JwtConfig.JWT_TOKEN_NAME);
+
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

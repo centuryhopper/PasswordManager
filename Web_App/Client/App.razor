@@ -1,6 +1,6 @@
-﻿
-    <CascadingAuthenticationState>
-        <Router AppAssembly="@typeof(App).Assembly">
+﻿<CascadingAuthenticationState>
+    <CascadingValue Value="navigationChecker" Name="@(nameof(NavigationChecker))">
+        <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="OnNavigateAsync">
             <Found Context="routeData">
                 <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
                 <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -12,6 +12,27 @@
                 </LayoutView>
             </NotFound>
         </Router>
-    </CascadingAuthenticationState>
+    </CascadingValue>
+
+</CascadingAuthenticationState>
 
 
+@* 30 minutes *@
+<NavigationChecker 
+    @ref="navigationChecker"
+    Seconds="@(30 * 60)"
+    JWT_TOKEN_NAME="@JwtConfig.JWT_TOKEN_NAME"
+    JWT_TOKEN_EXP_DATE_NAME="@JwtConfig.JWT_TOKEN_EXP_DATE_NAME" />
+
+@code {
+
+    private NavigationChecker navigationChecker = default!;
+
+    private async Task OnNavigateAsync(NavigationContext args)
+    {
+        navigationChecker.SetPageDirtyValue(false);
+        await HandyBlazorService.ResetFormStates();
+        await HandyBlazorService.StoreJwtExpiration(JwtConfig.JWT_TOKEN_NAME, JwtConfig.JWT_TOKEN_EXP_DATE_NAME,
+            JwtConfig.JWT_TOKEN_EXP_DATETIME);
+    }
+}
