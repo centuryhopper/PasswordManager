@@ -5,7 +5,7 @@ using PasswordManagerMobileApp.Models;
 using PasswordManagerMobileApp.Services;
 using Microsoft.Maui.Controls;
 
-namespace PasswordManagerMobileApp.ViewModels
+namespace PasswordManagerMobileApp.MVVM
 {
     public class LoginViewModel : INotifyPropertyChanged
     {
@@ -101,7 +101,9 @@ namespace PasswordManagerMobileApp.ViewModels
                 if (result.Flag)
                 {
                     await SecureStorage.SetAsync(JwtConfig.JWT_TOKEN_NAME, result.Token);
-                    await Shell.Current.GoToAsync("//Passwords");
+                    Email = string.Empty;
+                    Password = string.Empty;
+                    await Shell.Current.GoToAsync($"//{nameof(LoadingPage)}");
                 }
                 else
                 {

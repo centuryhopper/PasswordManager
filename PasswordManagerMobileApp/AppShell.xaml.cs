@@ -1,4 +1,4 @@
-﻿using PasswordManagerMobileApp.Views;
+﻿using PasswordManagerMobileApp.MVVM;
 
 namespace PasswordManagerMobileApp;
 
@@ -8,8 +8,7 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 
-		// Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
-		Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
+		Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
 		Routing.RegisterRoute(nameof(Passwords), typeof(Passwords));
 		Routing.RegisterRoute(nameof(Settings), typeof(Settings));
 		Routing.RegisterRoute(nameof(Profile), typeof(Profile));

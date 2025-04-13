@@ -1,6 +1,5 @@
 ﻿
-using PasswordManagerMobileApp.ViewModels;
-using PasswordManagerMobileApp.Views;
+using PasswordManagerMobileApp.MVVM;
 
 namespace PasswordManagerMobileApp;
 

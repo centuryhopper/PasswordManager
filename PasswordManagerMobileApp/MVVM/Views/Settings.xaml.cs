@@ -1,4 +1,4 @@
-namespace PasswordManagerMobileApp.Views;
+namespace PasswordManagerMobileApp.MVVM;
 
 
 public partial class Settings : ContentPage

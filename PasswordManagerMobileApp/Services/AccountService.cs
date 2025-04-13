@@ -56,6 +56,7 @@ public class AccountService : IAccountService
 
     public async Task LogoutAsync()
     {
-
+        SecureStorage.Remove(JwtConfig.JWT_TOKEN_NAME);
+        await Task.Delay(3000);
     }
 }

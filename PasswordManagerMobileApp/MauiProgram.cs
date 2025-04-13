@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PasswordManagerMobileApp.Services;
-using PasswordManagerMobileApp.ViewModels;
-using PasswordManagerMobileApp.Views;
+using PasswordManagerMobileApp.MVVM;
 
 namespace PasswordManagerMobileApp;
 
@@ -17,13 +16,14 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
-		
+
 		// Dependency injection
 		builder.Services.AddSingleton<HttpClient>();
 		builder.Services.AddScoped<IAccountService, AccountService>();
 		builder.Services.AddTransient<LoginViewModel>();
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<LoadingPage>();
+		builder.Services.AddTransient<LogoutPage>();
 		builder.Services.AddTransient<Passwords>();
 		builder.Services.AddTransient<Settings>();
 		builder.Services.AddTransient<Profile>();

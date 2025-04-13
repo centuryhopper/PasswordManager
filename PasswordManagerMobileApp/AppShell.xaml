@@ -1,56 +1,60 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:views="clr-namespace:PasswordManagerMobileApp.Views"
+       xmlns:views="clr-namespace:PasswordManagerMobileApp.MVVM"
        x:Class="PasswordManagerMobileApp.AppShell"
        Shell.FlyoutBehavior="Disabled"
-       Title="Password Manager"
-       >
-     <!-- Shell.FlyoutBehavior="Disabled" disables the hamburger menu  -->
+       Title="Password Manager">
+    <!-- Shell.FlyoutBehavior="Disabled" disables the hamburger menu  -->
 
-
-    <!-- <ShellContent
-        Route="LoadingPage"
-        ContentTemplate="{DataTemplate views:LoadingPage}"
-        Shell.FlyoutItemIsVisible="False"
-        /> -->
-    <!-- <ShellContent Title="Home"
-        Route="MainPage"
-        ContentTemplate="{DataTemplate views:MainPage}"/> -->
-
-    <!-- Login Page as Root -->
+    <!-- Login Page as Root (needs to be the first shellcontent)-->
     <ShellContent
         Route="LoginPage"
         ContentTemplate="{DataTemplate views:LoginPage}"
-        Shell.FlyoutItemIsVisible="False"
-        />
+        Shell.FlyoutItemIsVisible="False"/>
+
+    <ShellContent
+        Route="LoadingPage"
+        ContentTemplate="{DataTemplate views:LoadingPage}"
+        Shell.FlyoutItemIsVisible="False"/>
 
     <!-- bottom tab Bar shown after login -->
-    <!-- <TabBar x:Name="MainTabBar"
+    <TabBar x:Name="MainTabBar"
             Title="Main Navigation"
-            FlyoutDisplayOptions="AsMultipleItems"
-            > -->
-<!-- 
-        <ShellContent Title="Passwords"
-                      Icon="lock.png"
-                      Route="Passwords"
-                      ContentTemplate="{DataTemplate views:Passwords}"/> -->
-<!-- 
-        <ShellContent Title="Settings"
-                      Icon="settings.png"
+            FlyoutDisplayOptions="AsMultipleItems">
+
+        <Tab Title="Passwords"
+            Icon="lock.png"
+            >
+            <ShellContent Title="Passwords"                        
+                        Route="Passwords"
+                        ContentTemplate="{DataTemplate views:Passwords}"/>
+        </Tab>
+
+        <Tab Title="Settings"
+            Icon="cog.png">
+            <ShellContent Title="Settings"
                       Route="Settings"
-                      ContentTemplate="{DataTemplate views:Settings}"/> -->
+                      ContentTemplate="{DataTemplate views:Settings}"/>
+        </Tab>
+        
 
-        <!-- <ShellContent Title="Profile"
-                      Icon="person.png"
+        <Tab Title="Profile"
+            Icon="person.png"
+            >
+            <ShellContent Title="Profile"
                       Route="Profile"
-                      ContentTemplate="{DataTemplate views:Profile}"/> -->
+                      ContentTemplate="{DataTemplate views:Profile}"/>
+        </Tab>
 
-        <!-- Fake page just to trigger logout -->
-        <!-- <ShellContent Title="Logout"
-                      Icon="logout.png"
-                      Route="LogoutPage"
-                      ContentTemplate="{DataTemplate views:LogoutPage}"/> -->
-    <!-- </TabBar> -->
+        <Tab Title="Log out"
+            Icon="logout.png">
+            <!-- Fake page just to trigger logout -->
+            <ShellContent Title="Logout"
+                Route="LogoutPage"
+                ContentTemplate="{DataTemplate views:LogoutPage}"/>
+        </Tab>
+        
+    </TabBar>
 
 </Shell>

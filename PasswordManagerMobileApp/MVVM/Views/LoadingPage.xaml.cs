@@ -1,16 +1,16 @@
 using PasswordManagerMobileApp.Services;
 
-namespace PasswordManagerMobileApp.Views;
+namespace PasswordManagerMobileApp.MVVM;
 
 public partial class LoadingPage : ContentPage
 {
-    private readonly IAccountService accountService;
+	private readonly IAccountService accountService;
 
-    public LoadingPage(IAccountService accountService)
+	public LoadingPage(IAccountService accountService)
 	{
 		InitializeComponent();
-        this.accountService = accountService;
-    }
+		this.accountService = accountService;
+	}
 
 	protected override async void OnNavigatedTo(NavigatedToEventArgs args)
 	{
