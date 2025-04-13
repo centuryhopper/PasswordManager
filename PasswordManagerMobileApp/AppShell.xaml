@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:PasswordManagerMobileApp.Views"
+       x:Class="PasswordManagerMobileApp.AppShell"
+       Shell.FlyoutBehavior="Disabled"
+       Title="Password Manager"
+       >
+     <!-- Shell.FlyoutBehavior="Disabled" disables the hamburger menu  -->
+
+
+    <!-- <ShellContent
+        Route="LoadingPage"
+        ContentTemplate="{DataTemplate views:LoadingPage}"
+        Shell.FlyoutItemIsVisible="False"
+        /> -->
+    <!-- <ShellContent Title="Home"
+        Route="MainPage"
+        ContentTemplate="{DataTemplate views:MainPage}"/> -->
+
+    <!-- Login Page as Root -->
+    <ShellContent
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.FlyoutItemIsVisible="False"
+        />
+
+    <!-- bottom tab Bar shown after login -->
+    <!-- <TabBar x:Name="MainTabBar"
+            Title="Main Navigation"
+            FlyoutDisplayOptions="AsMultipleItems"
+            > -->
+<!-- 
+        <ShellContent Title="Passwords"
+                      Icon="lock.png"
+                      Route="Passwords"
+                      ContentTemplate="{DataTemplate views:Passwords}"/> -->
+<!-- 
+        <ShellContent Title="Settings"
+                      Icon="settings.png"
+                      Route="Settings"
+                      ContentTemplate="{DataTemplate views:Settings}"/> -->
+
+        <!-- <ShellContent Title="Profile"
+                      Icon="person.png"
+                      Route="Profile"
+                      ContentTemplate="{DataTemplate views:Profile}"/> -->
+
+        <!-- Fake page just to trigger logout -->
+        <!-- <ShellContent Title="Logout"
+                      Icon="logout.png"
+                      Route="LogoutPage"
+                      ContentTemplate="{DataTemplate views:LogoutPage}"/> -->
+    <!-- </TabBar> -->
+
+</Shell>
