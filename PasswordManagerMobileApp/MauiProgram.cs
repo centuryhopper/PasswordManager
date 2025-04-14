@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using PasswordManagerMobileApp.Services;
 using PasswordManagerMobileApp.MVVM;
+using CommunityToolkit.Maui;
 
 namespace PasswordManagerMobileApp;
 
@@ -11,6 +12,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -19,8 +21,18 @@ public static class MauiProgram
 
 		// Dependency injection
 		builder.Services.AddSingleton<HttpClient>();
+
+		// C# interface services
 		builder.Services.AddScoped<IAccountService, AccountService>();
+		builder.Services.AddScoped<IPasswordManagerService, PasswordManagerService>();
+
+
+
+		// xamls and viewmodels
 		builder.Services.AddTransient<LoginViewModel>();
+		builder.Services.AddTransient<PaginatedTableViewModel>();
+		builder.Services.AddTransient<PasswordsGridVM>();
+		builder.Services.AddTransient<PaginatedTable>();
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<LoadingPage>();
 		builder.Services.AddTransient<LogoutPage>();

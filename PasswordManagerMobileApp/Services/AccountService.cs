@@ -21,16 +21,14 @@ public class AccountService : IAccountService
 
     public async Task<bool> IsAuthenticatedAsync()
     {
-        await Task.Delay(3000);
-        return true;
+        return Preferences.ContainsKey(JwtConfig.JWT_TOKEN_NAME) || await SecureStorage.GetAsync(JwtConfig.JWT_TOKEN_NAME) != null;
     }
 
     public async Task<LoginResponse> LoginAsync(LoginDTO loginDTO)
     {
-        return new LoginResponse(true, "", "test login successful");
         try
         {
-            var response = await httpClient.PostAsJsonAsync("api/Account/login", loginDTO);
+            var response = await httpClient.PostAsJsonAsync("https://mypasswordmanager-production-b6be.up.railway.app/api/Account/login", loginDTO);
             var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
             if (!response.IsSuccessStatusCode)
             {
@@ -40,6 +38,8 @@ public class AccountService : IAccountService
             {
                 throw new Exception("Couldn't get a token");
             }
+
+            Preferences.Set(JwtConfig.JWT_TOKEN_NAME, loginResponse.Token);
 
             if (loginDTO.RememberMe)
             {
@@ -56,7 +56,7 @@ public class AccountService : IAccountService
 
     public async Task LogoutAsync()
     {
+        Preferences.Remove(JwtConfig.JWT_TOKEN_NAME);
         SecureStorage.Remove(JwtConfig.JWT_TOKEN_NAME);
-        await Task.Delay(3000);
     }
 }

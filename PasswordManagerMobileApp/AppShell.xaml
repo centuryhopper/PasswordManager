@@ -7,6 +7,13 @@
        Title="Password Manager">
     <!-- Shell.FlyoutBehavior="Disabled" disables the hamburger menu  -->
 
+
+    <!-- tests (comment out when done) -->
+    <!-- <ShellContent
+        Route="PaginatedTable"
+        ContentTemplate="{DataTemplate views:PaginatedTable}"
+        Shell.FlyoutItemIsVisible="False"/> -->
+
     <!-- Login Page as Root (needs to be the first shellcontent)-->
     <ShellContent
         Route="LoginPage"

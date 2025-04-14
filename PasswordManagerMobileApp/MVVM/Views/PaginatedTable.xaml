@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PasswordManagerMobileApp.MVVM.PaginatedTable"
+    Title="Paginated Table">
+
+    <Frame BorderColor="Gray" CornerRadius="8" Padding="10" HasShadow="False" BackgroundColor="White">
+        <StackLayout>
+            
+            <!-- Table Header with Even Columns -->
+            <Grid ColumnDefinitions="*,*"
+                ColumnSpacing="0"
+                RowSpacing="0"
+                Margin="0,0,0,1">
+                <Border Stroke="Black" StrokeThickness="1">
+                    <Label Text="Name" FontAttributes="Bold" Padding="10"/>
+                </Border>
+                <Border Stroke="Black" StrokeThickness="1" Grid.Column="1">
+                    <Label Text="Age" FontAttributes="Bold" Padding="10"/>
+                </Border>
+            </Grid>
+
+            <!-- Table Content with Even Columns -->
+            <CollectionView ItemsSource="{Binding PagedItems}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*,*"
+                            ColumnSpacing="0"
+                            RowSpacing="0"
+                            Margin="0,0,0,1">
+                            <Border Stroke="Gray" StrokeThickness="1">
+                                <Label Text="{Binding Name}" Padding="10"/>
+                            </Border>
+                            <Border Stroke="Gray" StrokeThickness="1" Grid.Column="1">
+                                <Label Text="{Binding Age}" Padding="10"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+
+            <!-- Pagination Controls -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,20,0,0">
+                <Button Text="◀ Previous"
+                        Command="{Binding PreviousPageCommand}"
+                        IsEnabled="{Binding CanGoPrevious}" />
+
+                <Label Text="{Binding CurrentPage}" 
+                       HorizontalOptions="Center" 
+                       VerticalOptions="Center"
+                       Grid.Column="1"/>
+
+                <Button Text="Next ▶"
+                        Command="{Binding NextPageCommand}"
+                        IsEnabled="{Binding CanGoNext}"
+                        Grid.Column="2"/>
+            </Grid>
+
+        </StackLayout>
+    </Frame>
+</ContentPage>

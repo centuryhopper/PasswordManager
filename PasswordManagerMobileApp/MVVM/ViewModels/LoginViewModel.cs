@@ -1,122 +1,86 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 using PasswordManagerMobileApp.Models;
 using PasswordManagerMobileApp.Services;
-using Microsoft.Maui.Controls;
+using CommunityToolkit.Maui.Alerts;
 
-namespace PasswordManagerMobileApp.MVVM
+namespace PasswordManagerMobileApp.MVVM;
+public partial class LoginViewModel : ObservableObject
 {
-    public class LoginViewModel : INotifyPropertyChanged
+    private readonly IAccountService _accountService;
+
+    public LoginViewModel(IAccountService accountService)
     {
-        private readonly IAccountService _accountService;
+        _accountService = accountService;
+        LoginCommand = new AsyncRelayCommand(LoginAsync);
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    [ObservableProperty]
+    private string email;
 
-        public ICommand LoginCommand { get; }
+    [ObservableProperty]
+    private string password;
 
-        public LoginViewModel(IAccountService accountService)
+    [ObservableProperty]
+    private bool rememberMe;
+
+    [ObservableProperty]
+    private string errorMessage;
+
+    [ObservableProperty]
+    private bool isErrorVisible;
+
+    public IAsyncRelayCommand LoginCommand { get; }
+
+    private async Task LoginAsync()
+    {
+        ErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
-            _accountService = accountService;
-            LoginCommand = new Command(async () => await LoginAsync());
+            ErrorMessage = "Email and password are required.";
+            IsErrorVisible = true;
+            return;
         }
 
-        private string _email;
-        public string Email
+        try
         {
-            get => _email;
-            set
+            var loginDTO = new LoginDTO
             {
-                _email = value;
-                OnPropertyChanged();
+                Email = Email,
+                Password = Password,
+                RememberMe = RememberMe
+            };
+
+            var result = await _accountService.LoginAsync(loginDTO);
+
+            if (result.Flag)
+            {
+                Email = string.Empty;
+                Password = string.Empty;
+
+                // Optional: Show token in a toast
+                // var toast = Toast.Make(result.Token, ToastDuration.Long, 14);
+                // await toast.Show();
+
+                await Shell.Current.GoToAsync($"//{nameof(LoadingPage)}");
+            }
+            else
+            {
+                ErrorMessage = "Invalid credentials.";
+                IsErrorVisible = true;
             }
         }
-
-        private string _password;
-        public string Password
+        catch (Exception ex)
         {
-            get => _password;
-            set
-            {
-                _password = value;
-                OnPropertyChanged();
-            }
+            ErrorMessage = $"Something went wrong: {ex.Message}";
+            IsErrorVisible = true;
         }
+    }
 
-        private bool _rememberMe;
-        public bool RememberMe
-        {
-            get => _rememberMe;
-            set
-            {
-                _rememberMe = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _errorMessage;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set
-            {
-                _errorMessage = value;
-                OnPropertyChanged();
-                IsErrorVisible = !string.IsNullOrWhiteSpace(value);
-            }
-        }
-
-        private bool _isErrorVisible;
-        public bool IsErrorVisible
-        {
-            get => _isErrorVisible;
-            set
-            {
-                _isErrorVisible = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private async Task LoginAsync()
-        {
-            ErrorMessage = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-            {
-                ErrorMessage = "Email and password are required.";
-                return;
-            }
-
-            try
-            {
-                var loginDTO = new LoginDTO
-                {
-                    Email = Email,
-                    Password = Password,
-                    RememberMe = RememberMe
-                };
-
-                var result = await _accountService.LoginAsync(loginDTO);
-
-                if (result.Flag)
-                {
-                    await SecureStorage.SetAsync(JwtConfig.JWT_TOKEN_NAME, result.Token);
-                    Email = string.Empty;
-                    Password = string.Empty;
-                    await Shell.Current.GoToAsync($"//{nameof(LoadingPage)}");
-                }
-                else
-                {
-                    ErrorMessage = "Invalid credentials.";
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Something went wrong: {ex.Message}";
-            }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    partial void OnErrorMessageChanged(string value)
+    {
+        IsErrorVisible = !string.IsNullOrWhiteSpace(value);
     }
 }
