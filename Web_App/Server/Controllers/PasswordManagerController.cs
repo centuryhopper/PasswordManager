@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models;
 using Server.Repositories;
-using static Shared.Models.ServiceResponses;
+
 using Newtonsoft.Json;
 
 namespace Server.Controllers;
@@ -74,7 +74,7 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
     {
         if (!uploadedFileResults.Any())
         {
-            return BadRequest(new GeneralResponse(Flag: false, Message: "There were no data uploaded"));
+            return BadRequest(new HandyGeneralResponse(Flag: false, Message: "There were no data uploaded"));
         }
 
         var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -91,26 +91,32 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
     }
 
     [HttpPost("add-passwords")]
-    public async Task<IActionResult> AddPasswordRecords([FromBody] string items)
+    public async Task<IActionResult> AddPasswordRecords([FromBody] IEnumerable<PasswordAccountDTO> dtos)
     {
-        IEnumerable<PasswordAccountDTO> passwordAccountDTOs = JsonConvert.DeserializeObject<IEnumerable<PasswordAccountDTO>>(items);
-        var response = await passwordManagerAccountRepository.CreateMultipleAsync(passwordAccountDTOs);
-        if (!response.Flag)
+        // IEnumerable<PasswordAccountDTO> passwordAccountDTOs = JsonConvert.DeserializeObject<IEnumerable<PasswordAccountDTO>>(items);
+        try
         {
-            return BadRequest(new GeneralResponse(Flag: false, Message: response.Message));
+            var response = await passwordManagerAccountRepository.CreateMultipleAsync(dtos);
+            return Ok(response);
         }
-        return Ok(new GeneralResponse(Flag: true, Message: response.Message));
+        catch (System.Exception ex)
+        {
+            return BadRequest(new HandyGeneralResponse(Flag: false, Message: ex.Message));
+        }
     }
 
     [HttpPost("add-password")]
     public async Task<IActionResult> AddPasswordRecord([FromBody] PasswordAccountDTO passwordAccountDTO)
     {
-        var response = await passwordManagerAccountRepository.CreateAsync(passwordAccountDTO);
-        if (!response.Flag)
+        try
         {
-            return BadRequest(response.Message);
+            var response = await passwordManagerAccountRepository.CreateAsync(passwordAccountDTO);
+            return Ok(response);
         }
-        return Ok(response.Message);
+        catch (System.Exception ex)
+        {
+            return BadRequest(new HandyGeneralResponse(false, ex.Message));
+        }
     }
 
     [HttpPut("update-password")]

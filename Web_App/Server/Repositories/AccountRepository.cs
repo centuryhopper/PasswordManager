@@ -9,40 +9,40 @@ using NLog.Web.LayoutRenderers;
 using Server.Contexts;
 using Server.Entities;
 using Shared.Models;
-using static Shared.Models.ServiceResponses;
+
 
 namespace Server.Repositories;
 
 public class AccountRepository(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IWebHostEnvironment webHostEnvironment, PasswordManagerDbContext passwordManagerDbContext) : IAccountRepository
 {
-    public async Task<GeneralResponse> CheckPassword(string email, string password)
+    public async Task<HandyGeneralResponse> CheckPassword(string email, string password)
     {
         var getUser = await userManager.FindByEmailAsync(email);
         bool checkUserPasswords = await userManager.CheckPasswordAsync(getUser!, password);
         if (!checkUserPasswords)
         {
-            return new GeneralResponse(false, "Incorrect password");
+            return new HandyGeneralResponse(false, "Incorrect password");
         }
 
-        return new GeneralResponse(true, "Success");
+        return new HandyGeneralResponse(true, "Success");
     }
 
-    public async Task<LoginResponse> LoginAccount(LoginDTO loginDTO)
+    public async Task<HandyLoginResponse> LoginAccount(LoginDTO loginDTO)
     {
         if (loginDTO is null)
         {
-            return new LoginResponse(false, null!, "Login container is empty");
+            return new HandyLoginResponse(false, null!, "Login container is empty");
         }
 
         var getUser = await userManager.FindByEmailAsync(loginDTO.Email);
         if (getUser is null)
         {
             // check email in passwordmanager users table and if it is there
-            var passwordManagerUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u=>u.Email == loginDTO.Email);
+            var passwordManagerUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.Email == loginDTO.Email);
 
             if (passwordManagerUser is null)
             {
-                return new LoginResponse(false, null!, "User not found");
+                return new HandyLoginResponse(false, null!, "User not found");
             }
 
             // then find the user in the ums by the ums id and overwrite the old email with the new one
@@ -50,7 +50,7 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
 
             if (getUser is null)
             {
-                return new LoginResponse(false, null!, "The user with this email was not found in the UMS.");
+                return new HandyLoginResponse(false, null!, "The user with this email was not found in the UMS.");
             }
 
             passwordManagerUser.Email = getUser.Email;
@@ -60,7 +60,7 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
         bool checkUserPasswords = await userManager.CheckPasswordAsync(getUser, loginDTO.Password);
         if (!checkUserPasswords)
         {
-            return new LoginResponse(false, null!, "Invalid email/password");
+            return new HandyLoginResponse(false, null!, "Invalid email/password");
         }
 
         // your custom new user insert goes here (below is just an example)
@@ -70,32 +70,37 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
         {
             try
             {
-                await passwordManagerDbContext.PasswordmanagerUsers.AddAsync(new PasswordmanagerUser {
+                await passwordManagerDbContext.PasswordmanagerUsers.AddAsync(new PasswordmanagerUser
+                {
                     UmsUserid = getUser.Id!
-                    ,Email = getUser.Email!
-                    ,Datecreated = DateTime.Now
-                    ,Datelastlogin = DateTime.Now
-                    ,Dateretired = null
+                    ,
+                    Email = getUser.Email!
+                    ,
+                    Datecreated = DateTime.Now
+                    ,
+                    Datelastlogin = DateTime.Now
+                    ,
+                    Dateretired = null
                 });
                 await passwordManagerDbContext.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
-                return new LoginResponse(false, null!, ex.Message);
+                return new HandyLoginResponse(false, null!, ex.Message);
             }
         }
 
-        var stockUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u=>u.UmsUserid == getUser.Id);
+        var stockUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.UmsUserid == getUser.Id);
         stockUser.Datelastlogin = DateTime.Now;
         await passwordManagerDbContext.SaveChangesAsync();
 
         var getUserRole = await userManager.GetRolesAsync(getUser);
         string token = GenerateToken(stockUser.Id, getUser.UserName, getUser.Email, getUserRole.First());
 
-        return new LoginResponse(true, token!, "Login completed");
+        return new HandyLoginResponse(true, token!, "Login completed");
     }
 
-    public async Task<GeneralResponse> Logout(int userId)
+    public async Task<HandyGeneralResponse> Logout(int userId)
     {
         try
         {
@@ -105,10 +110,10 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
         }
         catch (System.Exception ex)
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
+            return new HandyGeneralResponse(Flag: false, Message: ex.Message);
         }
 
-        return new GeneralResponse(Flag: true, Message: "log out success!");
+        return new HandyGeneralResponse(Flag: true, Message: "log out success!");
     }
 
     private string GenerateToken(int userId, string userName, string email, string role)

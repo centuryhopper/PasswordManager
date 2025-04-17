@@ -6,9 +6,8 @@ using Server.Contexts;
 using Server.Repositories;
 using Shared.Models;
 using Server.Entities;
-using Shared.Models;
 using Server.Utils;
-using static Shared.Models.ServiceResponses;
+
 using System.Security.Claims;
 
 
@@ -23,14 +22,13 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         return accountModel?.ToPasswordManagerAccountDTO();
     }
 
-
     public int AccountsCount(int UserId, string title)
     {
         var cnt = passwordManagerDbContext.PasswordmanagerAccounts.Where(a => a.Userid == UserId && a.Title.ToLower().Contains(title)).Count();
         return cnt;
     }
 
-    public async Task<GeneralResponse> UploadCsvAsync(IEnumerable<PasswordAccountDTO> uploadedResults, int userId)
+    public async Task<HandyGeneralResponse> UploadCsvAsync(IEnumerable<PasswordAccountDTO> uploadedResults, int userId)
     {
         try
         {
@@ -49,14 +47,13 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         }
         catch (Exception ex)
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
+            return new HandyGeneralResponse(Flag: false, Message: ex.Message);
         }
 
-        return new GeneralResponse(Flag: true, Message: "File uploaded!");
-
+        return new HandyGeneralResponse(Flag: true, Message: "File uploaded!");
     }
 
-    // public async Task<GeneralResponse> UploadCsvAsync(IFormFile file, int userId)
+    // public async Task<HandyGeneralResponse> UploadCsvAsync(IFormFile file, int userId)
     // {
     //     // set up csv helper and read file
     //     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -92,10 +89,10 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
     //     }
     //     catch (CsvHelperException ex)
     //     {
-    //         return new GeneralResponse(Flag: false, Message: ex.Message);
+    //         return new HandyGeneralResponse(Flag: false, Message: ex.Message);
     //     }
 
-    //     return new GeneralResponse(Flag: true, Message: "File uploaded!");
+    //     return new HandyGeneralResponse(Flag: true, Message: "File uploaded!");
 
     // }
 
@@ -123,49 +120,36 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         });
     }
 
-    public async Task<GeneralResponse> CreateMultipleAsync(IEnumerable<PasswordAccountDTO> passwordsToAdd)
+    public async Task<IEnumerable<HandyGeneralResponseWithPayload>> CreateMultipleAsync(IEnumerable<PasswordAccountDTO> dtos)
     {
-        var passwordEntities = passwordsToAdd.Select(p=>(new PasswordAccountDTO {
-            UserId = p.UserId,
-            Title = p.Title,
-            Username = p.Username,
-            Password = Convert.ToBase64String(encryptionContext.Encrypt(p.Password!)),
-            CreatedAt = p.CreatedAt,
-            LastUpdatedAt = p.LastUpdatedAt,
-        }).ToPasswordManagerAccount()).ToList();
-
-        try
+        List<HandyGeneralResponseWithPayload> responses = [];
+        foreach (var dto in dtos)
         {
-            await passwordManagerDbContext.PasswordmanagerAccounts.AddRangeAsync(passwordEntities);
-            await passwordManagerDbContext.SaveChangesAsync();
+            responses.Add(await CreateAsync(dto));
         }
-        catch (System.Exception ex)
-        {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
-        }
-        return new GeneralResponse(Flag: true, Message: "Password records have been added!");
-
+        return responses;
     }
 
-    public async Task<GeneralResponse> CreateAsync(PasswordAccountDTO model)
+    public async Task<HandyGeneralResponseWithPayload> CreateAsync(PasswordAccountDTO model)
     {
         model.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password!));
         model.CreatedAt = DateTime.Now;
         model.LastUpdatedAt = DateTime.Now;
         try
         {
-            await passwordManagerDbContext.PasswordmanagerAccounts.AddAsync(model.ToPasswordManagerAccount());
+            var record = model.ToPasswordManagerAccount();
+            await passwordManagerDbContext.PasswordmanagerAccounts.AddAsync(record);
             await passwordManagerDbContext.SaveChangesAsync();
+            return new HandyGeneralResponseWithPayload(Flag: true, Message: "Password record created!", record.Id.ToString());
         }
         catch (System.Exception ex)
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
+            return new HandyGeneralResponseWithPayload(Flag: false, Message: ex.Message, "");
         }
-        return new GeneralResponse(Flag: true, Message: "Password record created!");
 
     }
 
-    public async Task<GeneralResponse> UpdateAsync(PasswordAccountDTO model)
+    public async Task<HandyGeneralResponse> UpdateAsync(PasswordAccountDTO model)
     {
         var dbModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(model.Id);
         try
@@ -178,18 +162,18 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         }
         catch (System.Exception ex)
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
+            return new HandyGeneralResponse(Flag: false, Message: ex.Message);
         }
-        return new GeneralResponse(Flag: true, Message: "Password Record Updated!");
+        return new HandyGeneralResponse(Flag: true, Message: "Password Record Updated!");
     }
 
-    public async Task<GeneralResponse> DeleteAsync(int passwordRecordId)
+    public async Task<HandyGeneralResponse> DeleteAsync(int passwordRecordId)
     {
         var queryModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(passwordRecordId);
 
         if (queryModel is null)
         {
-            return new GeneralResponse(Flag: false, Message: "This record doesn't exist.");
+            return new HandyGeneralResponse(Flag: false, Message: "This record doesn't exist.");
         }
 
         passwordManagerDbContext.PasswordmanagerAccounts.Remove(queryModel!);
@@ -200,10 +184,10 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         }
         catch (System.Exception ex)
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
+            return new HandyGeneralResponse(Flag: false, Message: ex.Message);
         }
 
-        return new GeneralResponse(Flag: true, Message: "Password Record Deleted!");
+        return new HandyGeneralResponse(Flag: true, Message: "Password Record Deleted!");
     }
 
 }
