@@ -74,7 +74,7 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
     {
         if (!uploadedFileResults.Any())
         {
-            return BadRequest(new HandyGeneralResponse(Flag: false, Message: "There were no data uploaded"));
+            return BadRequest(new GeneralResponse(Flag: false, Message: "There were no data uploaded"));
         }
 
         var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -101,7 +101,7 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         }
         catch (System.Exception ex)
         {
-            return BadRequest(new HandyGeneralResponse(Flag: false, Message: ex.Message));
+            return BadRequest(new GeneralResponse(Flag: false, Message: ex.Message));
         }
     }
 
@@ -115,7 +115,7 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         }
         catch (System.Exception ex)
         {
-            return BadRequest(new HandyGeneralResponse(false, ex.Message));
+            return BadRequest(new GeneralResponse(false, ex.Message));
         }
     }
 

@@ -1,6 +1,6 @@
-global using static HandyBlazorComponents.Models.HandyServiceResponses;
 global using Shared;
 global using ConfigurationProvider = Server.Utils.ConfigurationProvider;
+global using static Shared.Models.ServiceResponses;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +15,7 @@ using Server.Entities;
 using Server.Repositories;
 using Server.Utils;
 using Swashbuckle.AspNetCore.Filters;
+
 
 // MUST HAVE IT LIKE THIS FOR NLOG TO RECOGNIZE DOTNET USER-SECRETS INSTEAD OF HARDCODED DELIMIT PLACEHOLDER VALUE FROM APPSETTINGS.JSON
 
