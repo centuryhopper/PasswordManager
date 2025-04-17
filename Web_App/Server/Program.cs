@@ -63,15 +63,6 @@ builder.Services.AddSingleton<ConfigurationProvider>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IPasswordManagerDbRepository, PasswordManagerDbRepository>();
 
-// Configure the Identity database context
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(
-        builder.Environment.IsDevelopment()
-            ? builder.Configuration.GetConnectionString("UserManagementDB")
-            : Environment.GetEnvironmentVariable("UserManagementDB")
-    )
-);
-
 builder.Services.AddDbContext<PasswordManagerDbContext>(options =>
     options.UseNpgsql(
         builder.Environment.IsDevelopment()
@@ -79,20 +70,6 @@ builder.Services.AddDbContext<PasswordManagerDbContext>(options =>
             : Environment.GetEnvironmentVariable("DB_CONN")
     )
 );
-
-builder
-    .Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager()
-    .AddRoles<ApplicationRole>();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequiredLength = 10;
-    options.Password.RequiredUniqueChars = 3;
-    options.Password.RequireNonAlphanumeric = false;
-    options.SignIn.RequireConfirmedAccount = true;
-});
 
 builder
     .Services.AddAuthentication(options =>

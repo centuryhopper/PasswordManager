@@ -23,18 +23,18 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
         return Ok("Logging test completed. Check your PostgreSQL LOGS table.");
     }
 
-    [Authorize]
-    [HttpGet("check-password")]
-    public async Task<IActionResult> CheckPassword([FromQuery] string password)
-    {
-        var email = User.FindFirstValue(ClaimTypes.Email);
-        var response = await accountRepository.CheckPassword(email!, password);
-        if (!response.Flag)
-        {
-            return BadRequest(response);
-        }
-        return Ok(response);
-    }
+    // [Authorize]
+    // [HttpGet("check-password")]
+    // public async Task<IActionResult> CheckPassword([FromQuery] string password)
+    // {
+    //     var email = User.FindFirstValue(ClaimTypes.Email);
+    //     var response = await accountRepository.CheckPassword(email!, password);
+    //     if (!response.Flag)
+    //     {
+    //         return BadRequest(response);
+    //     }
+    //     return Ok(response);
+    // }
 
     [Authorize]
     [HttpPost("logout/{userId:int}")]

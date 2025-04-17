@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 namespace Server.Repositories;
 
-public class PasswordManagerDbRepository(EncryptionContext encryptionContext, ILogger<PasswordManagerDbRepository> logger, PasswordManagerDbContext passwordManagerDbContext, IHttpContextAccessor httpContextAccessor) : IPasswordManagerDbRepository
+public class PasswordManagerDbRepository(EncryptionContext encryptionContext, ILogger<PasswordManagerDbRepository> logger, PasswordManagerDbContext passwordManagerDbContext) : IPasswordManagerDbRepository
 {
     public async Task<PasswordAccountDTO?> GetPasswordRecordAsync(int passwordRecordId)
     {

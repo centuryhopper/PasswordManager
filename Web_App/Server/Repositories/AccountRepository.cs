@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,19 +14,8 @@ using Shared.Models;
 
 namespace Server.Repositories;
 
-public class AccountRepository(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IWebHostEnvironment webHostEnvironment, PasswordManagerDbContext passwordManagerDbContext) : IAccountRepository
+public class AccountRepository(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, PasswordManagerDbContext passwordManagerDbContext, HttpClient httpClient) : IAccountRepository
 {
-    public async Task<GeneralResponse> CheckPassword(string email, string password)
-    {
-        var getUser = await userManager.FindByEmailAsync(email);
-        bool checkUserPasswords = await userManager.CheckPasswordAsync(getUser!, password);
-        if (!checkUserPasswords)
-        {
-            return new GeneralResponse(false, "Incorrect password");
-        }
-
-        return new GeneralResponse(true, "Success");
-    }
 
     public async Task<LoginResponse> LoginAccount(LoginDTO loginDTO)
     {
@@ -34,47 +24,35 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
             return new LoginResponse(false, null!, "Login container is empty");
         }
 
-        var getUser = await userManager.FindByEmailAsync(loginDTO.Email);
-        if (getUser is null)
-        {
-            // check email in passwordmanager users table and if it is there
-            var passwordManagerUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.Email == loginDTO.Email);
+        var response = await httpClient.PostAsJsonAsync<LoginDTO>("https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/get-user-credentials?appName=PasswordManager", loginDTO);
 
-            if (passwordManagerUser is null)
-            {
-                return new LoginResponse(false, null!, "User not found");
-            }
+        response.EnsureSuccessStatusCode();
 
-            // then find the user in the ums by the ums id and overwrite the old email with the new one
-            getUser = await userManager.FindByIdAsync(passwordManagerUser.UmsUserid);
+        using var stream = await response.Content.ReadAsStreamAsync();
+        using var doc = await JsonDocument.ParseAsync(stream);
 
-            if (getUser is null)
-            {
-                return new LoginResponse(false, null!, "The user with this email was not found in the UMS.");
-            }
+        // Access root properties
+        var root = doc.RootElement;
 
-            passwordManagerUser.Email = getUser.Email;
-            await passwordManagerDbContext.SaveChangesAsync();
-        }
+        string username = root.GetProperty("username").GetString();
+        string email = root.GetProperty("email").GetString();
+        string userId = root.GetProperty("userId").GetString();
 
-        bool checkUserPasswords = await userManager.CheckPasswordAsync(getUser, loginDTO.Password);
-        if (!checkUserPasswords)
-        {
-            return new LoginResponse(false, null!, "Invalid email/password");
-        }
-
-        // your custom new user insert goes here (below is just an example)
+        var roles = root.GetProperty("roles")
+            .EnumerateArray()
+            .Select(r => r.GetProperty("role").GetString())
+            .ToList();
 
         // add user to the user table if they arent in it already
-        if (await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.UmsUserid == getUser.Id) is null)
+        if (await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.UmsUserid == userId) is null)
         {
             try
             {
                 await passwordManagerDbContext.PasswordmanagerUsers.AddAsync(new PasswordmanagerUser
                 {
-                    UmsUserid = getUser.Id!
+                    UmsUserid = userId!
                     ,
-                    Email = getUser.Email!
+                    Email = email!
                     ,
                     Datecreated = DateTime.Now
                     ,
@@ -90,12 +68,12 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
             }
         }
 
-        var stockUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstOrDefaultAsync(u => u.UmsUserid == getUser.Id);
-        stockUser.Datelastlogin = DateTime.Now;
+        var passwordDbUser = await passwordManagerDbContext.PasswordmanagerUsers.FirstAsync(u => u.UmsUserid == userId);
+        passwordDbUser.Datelastlogin = DateTime.Now;
         await passwordManagerDbContext.SaveChangesAsync();
 
-        var getUserRole = await userManager.GetRolesAsync(getUser);
-        string token = GenerateToken(stockUser.Id, getUser.UserName, getUser.Email, getUserRole.First());
+        string token = GenerateToken(passwordDbUser.Id, username, email, roles.First());
+        // string token = "";
 
         return new LoginResponse(true, token!, "Login completed");
     }
@@ -107,13 +85,13 @@ public class AccountRepository(UserManager<ApplicationUser> userManager, RoleMan
             var stockUser = await passwordManagerDbContext.PasswordmanagerUsers.FindAsync(userId);
             stockUser.Datelastlogout = DateTime.Now;
             await passwordManagerDbContext.SaveChangesAsync();
+            return new GeneralResponse(Flag: true, Message: "log out success!");
         }
         catch (System.Exception ex)
         {
             return new GeneralResponse(Flag: false, Message: ex.Message);
         }
 
-        return new GeneralResponse(Flag: true, Message: "log out success!");
     }
 
     private string GenerateToken(int userId, string userName, string email, string role)
