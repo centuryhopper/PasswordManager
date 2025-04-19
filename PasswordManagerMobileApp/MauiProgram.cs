@@ -5,6 +5,9 @@ using CommunityToolkit.Maui;
 
 namespace PasswordManagerMobileApp;
 
+// 
+
+
 public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
@@ -36,9 +39,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<LoadingPage>();
 		builder.Services.AddTransient<LogoutPage>();
-		builder.Services.AddTransient<Passwords>();
-		builder.Services.AddTransient<Settings>();
-		builder.Services.AddTransient<Profile>();
+		builder.Services.AddTransient<PasswordsPage>();
+		builder.Services.AddTransient<SettingsPage>();
+		builder.Services.AddTransient<ProfilePage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

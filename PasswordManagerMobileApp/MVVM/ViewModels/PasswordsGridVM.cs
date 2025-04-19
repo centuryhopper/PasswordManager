@@ -6,6 +6,17 @@ using PasswordManagerMobileApp.Services;
 
 namespace PasswordManagerMobileApp.MVVM;
 
+
+/*
+TotalPages is now re-notified when _allItems changes
+
+CanGoNext and CanGoPrevious are properly synced
+
+CurrentPage triggers LoadPage() and state updates automatically
+
+Everything that relies on _allItems gets notified after InitializeAsync()
+*/
+
 public partial class PasswordsGridVM : ObservableObject
 {
     private const int PageSize = 10;
@@ -15,6 +26,9 @@ public partial class PasswordsGridVM : ObservableObject
 
     private List<PasswordAccountDTO> _allItems = [];
 
+    [ObservableProperty]
+    private int currentPage = 1;
+
     public PasswordsGridVM(IPasswordManagerService passwordManagerService)
     {
         this.passwordManagerService = passwordManagerService;
@@ -23,11 +37,10 @@ public partial class PasswordsGridVM : ObservableObject
     public async Task InitializeAsync()
     {
         _allItems = (await passwordManagerService.GetPasswordAccountsAsync()).ToList();
+        CurrentPage = 1; // Reset to first page
         LoadPage();
+        UpdatePaginationState();
     }
-
-    [ObservableProperty]
-    private int currentPage = 1;
 
     public int TotalPages => (_allItems.Count + PageSize - 1) / PageSize;
 
@@ -38,23 +51,26 @@ public partial class PasswordsGridVM : ObservableObject
     private void NextPage()
     {
         if (CanGoNext)
+        {
             CurrentPage++;
+            UpdatePaginationState();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanGoPrevious))]
     private void PreviousPage()
     {
         if (CanGoPrevious)
+        {
             CurrentPage--;
+            UpdatePaginationState();
+        }
     }
 
     partial void OnCurrentPageChanged(int oldValue, int newValue)
     {
         LoadPage();
-        OnPropertyChanged(nameof(CanGoNext));
-        OnPropertyChanged(nameof(CanGoPrevious));
-        NextPageCommand.NotifyCanExecuteChanged();
-        PreviousPageCommand.NotifyCanExecuteChanged();
+        UpdatePaginationState();
     }
 
     private void LoadPage()
@@ -69,5 +85,15 @@ public partial class PasswordsGridVM : ObservableObject
         {
             PagedItems.Add(item);
         }
+    }
+
+    private void UpdatePaginationState()
+    {
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(CanGoNext));
+        OnPropertyChanged(nameof(CanGoPrevious));
+
+        NextPageCommand.NotifyCanExecuteChanged();
+        PreviousPageCommand.NotifyCanExecuteChanged();
     }
 }

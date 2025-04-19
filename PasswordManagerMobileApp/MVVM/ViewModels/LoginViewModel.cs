@@ -4,6 +4,7 @@ using System.Windows.Input;
 using PasswordManagerMobileApp.Models;
 using PasswordManagerMobileApp.Services;
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 
 namespace PasswordManagerMobileApp.MVVM;
 public partial class LoginViewModel : ObservableObject
@@ -61,8 +62,8 @@ public partial class LoginViewModel : ObservableObject
                 Password = string.Empty;
 
                 // Optional: Show token in a toast
-                // var toast = Toast.Make(result.Token, ToastDuration.Long, 14);
-                // await toast.Show();
+                var toast = Toast.Make(result.Token, ToastDuration.Long, 14);
+                await toast.Show();
 
                 await Shell.Current.GoToAsync($"//{nameof(LoadingPage)}");
             }

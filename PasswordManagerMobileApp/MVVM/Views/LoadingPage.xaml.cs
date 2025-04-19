@@ -17,7 +17,7 @@ public partial class LoadingPage : ContentPage
 		base.OnNavigatedTo(args);
 		if (await accountService.IsAuthenticatedAsync())
 		{
-			await Shell.Current.GoToAsync($"//{nameof(Passwords)}");
+			await Shell.Current.GoToAsync($"//{nameof(PasswordsPage)}");
 		}
 		else
 		{
