@@ -36,6 +36,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<PaginatedTableViewModel>();
 		builder.Services.AddTransient<PasswordsGridVM>();
 		builder.Services.AddTransient<PaginatedTable>();
+		builder.Services.AddTransient<App>();
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<LoadingPage>();
 		builder.Services.AddTransient<LogoutPage>();

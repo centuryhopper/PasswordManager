@@ -8,8 +8,8 @@ public partial class LoadingPage : ContentPage
 
 	public LoadingPage(IAccountService accountService)
 	{
-		InitializeComponent();
 		this.accountService = accountService;
+		Content = BuildContent();
 	}
 
 	protected override async void OnNavigatedTo(NavigatedToEventArgs args)
