@@ -21,12 +21,13 @@ public partial class PasswordsPage : ContentPage
 
         Title = "Passwords";
 
-        Content = BuildContent(vm);
-    }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await vm.InitializeAsync();
+        try
+        {
+            Content = BuildContent(vm);
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"🔥 BuildContent crashed: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 }

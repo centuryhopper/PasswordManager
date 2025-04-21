@@ -2,10 +2,11 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
 using Microsoft.Maui.Graphics;
-using CommunityToolkit.Maui.Markup;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using PasswordManagerMobileApp.Services;
+using CommunityToolkit.Maui.Markup;
 using PasswordManagerMobileApp.Models;
+using System.Windows.Input;
 
 
 namespace PasswordManagerMobileApp.MVVM;
@@ -13,7 +14,7 @@ namespace PasswordManagerMobileApp.MVVM;
 public partial class PasswordsPage : ContentPage
 {
     private View BuildContent(PasswordsGridVM vm)
-	{
+    {
         return new ScrollView
         {
             Orientation = ScrollOrientation.Vertical,
@@ -52,6 +53,7 @@ public partial class PasswordsPage : ContentPage
                                         Content = new Label
                                         {
                                             Text = "Title",
+                                            TextColor = Colors.Black,
                                             FontAttributes = FontAttributes.Bold,
                                             Padding = 10
                                         }
@@ -64,6 +66,7 @@ public partial class PasswordsPage : ContentPage
                                         Content = new Label
                                         {
                                             Text = "Username",
+                                            TextColor = Colors.Black,
                                             FontAttributes = FontAttributes.Bold,
                                             Padding = 10
                                         }
@@ -76,6 +79,7 @@ public partial class PasswordsPage : ContentPage
                                         Content = new Label
                                         {
                                             Text = "Password",
+                                            TextColor = Colors.Black,
                                             FontAttributes = FontAttributes.Bold,
                                             Padding = 10
                                         }
@@ -106,6 +110,7 @@ public partial class PasswordsPage : ContentPage
                                                 StrokeThickness = 1,
                                                 Content = new Label
                                                 {
+                                                    TextColor = Colors.Black,
                                                     Padding = 10
                                                 }.Bind(Label.TextProperty, nameof(PasswordAccountDTO.Title))
                                             }.Column(0),
@@ -116,6 +121,7 @@ public partial class PasswordsPage : ContentPage
                                                 StrokeThickness = 1,
                                                 Content = new Label
                                                 {
+                                                    TextColor = Colors.Black,
                                                     Padding = 10
                                                 }.Bind(Label.TextProperty, nameof(PasswordAccountDTO.Username))
                                             }.Column(1),
@@ -124,11 +130,37 @@ public partial class PasswordsPage : ContentPage
                                             {
                                                 Stroke = Colors.Gray,
                                                 StrokeThickness = 1,
-                                                Content = new Label
+                                                Content = new Grid
                                                 {
-                                                    Padding = 10
-                                                }.Bind(Label.TextProperty, nameof(PasswordAccountDTO.Password))
+                                                    ColumnDefinitions =
+                                                    {
+                                                        new ColumnDefinition { Width = GridLength.Star },
+                                                        new ColumnDefinition { Width = GridLength.Auto }
+                                                    },
+                                                    Children =
+                                                    {
+                                                        new Label
+                                                        {
+                                                            TextColor = Colors.Black,
+                                                            Padding = 10
+                                                        }
+                                                        .Bind(Label.TextProperty, nameof(PasswordAccountDTO.DisplayedPassword))
+                                                        .Column(0),
+
+                                                        new Button
+                                                        {
+                                                            // Text = "👁",
+                                                            FontSize = 14,
+                                                            Padding = new Thickness(5, 0),
+                                                            BackgroundColor = Colors.Transparent
+                                                        }
+                                                        .Bind(Button.TextProperty, nameof(PasswordAccountDTO.EyeIcon))
+                                                        .Bind(Button.CommandProperty, nameof(PasswordAccountDTO.TogglePasswordVisibilityCommand))
+                                                        .Column(1)
+                                                    }
+                                                }
                                             }.Column(2)
+
                                         }
                                     };
                                 })
@@ -153,11 +185,8 @@ public partial class PasswordsPage : ContentPage
                                     .Bind(IsEnabledProperty, "CanGoPrevious")
                                     .Column(0),
 
-                                    new Label
-                                    {
-                                        HorizontalOptions = LayoutOptions.Center,
-                                        VerticalOptions = LayoutOptions.Center
-                                    }
+                                    new Label()
+                                    .Center()
                                     .Bind(Label.TextProperty, "CurrentPage")
                                     .Column(1),
 

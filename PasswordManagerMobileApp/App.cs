@@ -17,6 +17,12 @@ public partial class App : Application
 		// start in login page if user isn't logged in
 		MainPage = new AppShell();
 
+        // Safe: Application.Current is now initialized (because this is Application)
+        // Resources.MergedDictionaries.Add(ThemeResources.Create());
+
+        // UserAppTheme = AppTheme.Dark;
+        // RequestedThemeChanged += OnRequestedThemeChanged;
+
         Task.Run(async () =>
         {
             if (await accountService.IsAuthenticatedAsync())
@@ -32,6 +38,11 @@ public partial class App : Application
         });
 
 	}
+
+    private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
+    {
+        Console.WriteLine($"Theme changed to: {e.RequestedTheme}");
+    }
 
 	// protected override void OnResume()
     // {

@@ -27,10 +27,11 @@ public partial class LoginPage
         layout.Add(
             new Entry
                 {
-                    Keyboard = Keyboard.Email
+                    Keyboard = Keyboard.Email,
+                    TextColor = Colors.Black,
                 }
                 .Margin(0, 10)
-                .Placeholder("Enter a valid email such as abc@gmail.com")
+                .Placeholder("Enter a valid email such as abc@gmail.com", textColor: Colors.Grey)
                 .Bind(Entry.TextProperty, nameof(vm.Email))
         );
 
@@ -38,9 +39,10 @@ public partial class LoginPage
 
         var passwordEntry = new Entry
         {
-            IsPassword = true
+            IsPassword = true,
+            TextColor = Colors.Black,
         }
-        .Placeholder("Enter a secure password")
+        .Placeholder("Enter a secure password", textColor: Colors.Grey)
         .Bind(Entry.TextProperty, nameof(vm.Password));
 
         var eyeButton = new ImageButton
@@ -85,7 +87,7 @@ public partial class LoginPage
                         .Bind(CheckBox.IsCheckedProperty, nameof(vm.RememberMe)),
 
                     new Label()
-                        .Text("Remember Me")
+                        .Text("Remember Me", textColor: Colors.Black)
                         .CenterVertical()
                 }
             }
@@ -110,7 +112,7 @@ public partial class LoginPage
                     HorizontalTextAlignment = TextAlignment.Center
                 }
                 .Bind(Label.TextProperty, nameof(vm.ErrorMessage))
-                .Bind(Label.IsVisibleProperty, nameof(vm.IsErrorVisible))
+                .Bind(IsVisibleProperty, nameof(vm.IsErrorVisible))
         );
 
         var registerLabel = new Label
@@ -118,8 +120,7 @@ public partial class LoginPage
             TextColor = Colors.Blue,
             TextDecorations = TextDecorations.Underline,
             Text = "New User? Create Account",
-            HorizontalOptions = LayoutOptions.Center
-        };
+        }.CenterHorizontal();
 
         registerLabel.GestureRecognizers.Add(
             new TapGestureRecognizer

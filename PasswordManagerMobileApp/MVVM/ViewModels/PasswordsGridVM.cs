@@ -28,18 +28,19 @@ public partial class PasswordsGridVM : ObservableObject
 
     [ObservableProperty]
     private int currentPage = 1;
+    [ObservableProperty]
+    private bool isPasswordVisible;
 
     public PasswordsGridVM(IPasswordManagerService passwordManagerService)
     {
         this.passwordManagerService = passwordManagerService;
-    }
 
-    public async Task InitializeAsync()
-    {
-        _allItems = (await passwordManagerService.GetPasswordAccountsAsync()).ToList();
-        CurrentPage = 1; // Reset to first page
-        LoadPage();
-        UpdatePaginationState();
+        Task.Run(async () => {
+            _allItems = (await passwordManagerService.GetPasswordAccountsAsync()).ToList();
+            CurrentPage = 1; // Reset to first page
+            LoadPage();
+            UpdatePaginationState();
+        });
     }
 
     public int TotalPages => (_allItems.Count + PageSize - 1) / PageSize;

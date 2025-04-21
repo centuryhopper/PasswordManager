@@ -12,19 +12,15 @@ public partial class LoadingPage : ContentPage
 		{
 			VerticalOptions = LayoutOptions.Center,
 			HorizontalOptions = LayoutOptions.Center,
+			Children = {
+				new ActivityIndicator {
+					IsRunning = true,
+				}.Center(),
+				new Label {
+					Text = "Checking authentication state"
+				}.Center(),
+			},
 		};
-
-		layout.Add(
-			new ActivityIndicator {
-				IsRunning = true,
-			}
-		);
-
-		layout.Add(
-			new Label {
-				Text = "Checking authentication state"
-			}
-		);
 
 		return layout;
 	}
