@@ -73,7 +73,6 @@ public class AccountRepository(IConfiguration configuration, IWebHostEnvironment
         await passwordManagerDbContext.SaveChangesAsync();
 
         string token = GenerateToken(passwordDbUser.Id, username, email, roles.First());
-        // string token = "";
 
         return new LoginResponse(true, token!, "Login completed");
     }
