@@ -10,28 +10,30 @@ using Server.Utils;
 using Shared.Models;
 
 using System.Security.Claims;
+using LanguageExt;
 
 
 namespace Server.Repositories;
 
 public class PasswordManagerDbRepository(EncryptionContext encryptionContext, ILogger<PasswordManagerDbRepository> logger, PasswordManagerDbContext passwordManagerDbContext) : IPasswordManagerDbRepository
 {
-    public async Task<PasswordAccountDTO?> GetPasswordRecordAsync(int passwordRecordId)
-    {
-        var accountModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(passwordRecordId);
-        accountModel.Password = encryptionContext.Decrypt(Convert.FromBase64String(accountModel.Password)).Replace(",", "$");
-        return accountModel?.ToPasswordManagerAccountDTO();
-    }
+    public async Task<Option<PasswordAccountDTO>> GetPasswordRecordAsync(int passwordRecordId) => await TryAsync(async () =>
+        {
+            var record = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(passwordRecordId);
 
-    public int AccountsCount(int UserId, string title)
-    {
-        var cnt = passwordManagerDbContext.PasswordmanagerAccounts.Where(a => a.Userid == UserId && a.Title.ToLower().Contains(title)).Count();
-        return cnt;
-    }
+            return Optional(record).Map(model =>
+            {
+                model.Password = encryptionContext
+                    .Decrypt(Convert.FromBase64String(model.Password))
+                    .Replace(",", "$");
+                return model.ToPasswordManagerAccountDTO();
+            });
+        }).Match(
+            Succ: val => val,
+            Fail: _ => Option<PasswordAccountDTO>.None
+        );
 
-    public async Task<GeneralResponse> UploadCsvAsync(IEnumerable<PasswordAccountDTO> uploadedResults, int userId)
-    {
-        try
+    public async Task<GeneralResponse> UploadCsvAsync(IEnumerable<PasswordAccountDTO> uploadedResults, int userId) => await TryAsync(async () =>
         {
             foreach (var uploadedResult in uploadedResults)
             {
@@ -45,81 +47,37 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
                     LastUpdatedAt = DateTime.Now,
                 });
             }
-        }
-        catch (Exception ex)
+            return new GeneralResponse(Flag: true, Message: "File uploaded!");
+        })
+        .Match(
+            Succ: res => res,
+            Fail: ex => new GeneralResponse(false, ex.Message)
+        );
+
+    public async Task<Option<IEnumerable<PasswordAccountDTO>>> GetAllPasswordRecordsAsync(int userId) => await TryAsync(async () =>
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
-        }
+            var results = await passwordManagerDbContext.PasswordmanagerAccounts.AsNoTracking().Where(a => a.Userid == userId).ToListAsync();
 
-        return new GeneralResponse(Flag: true, Message: "File uploaded!");
-    }
-
-    // public async Task<GeneralResponse> UploadCsvAsync(IFormFile file, int userId)
-    // {
-    //     // set up csv helper and read file
-    //     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-    //     {
-    //         HasHeaderRecord = true,
-    //         // set to null to allow files with only title, usernam, and password headers to be uploaded
-    //         HeaderValidated = null,
-    //         MissingFieldFound = null,
-    //     };
-
-
-    //     using var streamReader = new StreamReader(file.OpenReadStream());
-    //     using var csvReader = new CsvReader(streamReader, config);
-    //     IAsyncEnumerable<PasswordAccountDTO> records;
-
-    //     try
-    //     {
-    //         csvReader.Context.RegisterClassMap<PasswordsMapper>();
-    //         records = csvReader.GetRecordsAsync<PasswordAccountDTO>();
-
-    //         await foreach (var record in records)
-    //         {
-    //             await CreateAsync(new PasswordAccountDTO
-    //             {
-    //                 UserId = userId,
-    //                 Title = record.Title,
-    //                 Username = record.Username,
-    //                 Password = record.Password,
-    //                 CreatedAt = DateTime.Now,
-    //                 LastUpdatedAt = DateTime.Now,
-    //             });
-    //         }
-    //     }
-    //     catch (CsvHelperException ex)
-    //     {
-    //         return new GeneralResponse(Flag: false, Message: ex.Message);
-    //     }
-
-    //     return new GeneralResponse(Flag: true, Message: "File uploaded!");
-
-    // }
-
-    public async Task<IEnumerable<PasswordAccountDTO>> GetAllPasswordRecordsAsync(int userId)
-    {
-        var results = await passwordManagerDbContext.PasswordmanagerAccounts.AsNoTracking().Where(a => a.Userid == userId).ToListAsync();
-
-        if (!results.Any())
-        {
-            return Enumerable.Empty<PasswordAccountDTO>();
-        }
-
-        return results.Select(m =>
-        {
-            return new PasswordAccountDTO
+            return Optional(results).Map(results =>
             {
-                Id = m.Id,
-                Title = m.Title,
-                Username = m.Username,
-                Password = encryptionContext.Decrypt(Convert.FromBase64String(m.Password)).Replace(",", "$"),
-                UserId = m.Userid,
-                CreatedAt = m.CreatedAt,
-                LastUpdatedAt = m.LastUpdatedAt
-            };
-        });
-    }
+                return !results.Any() ? Enumerable.Empty<PasswordAccountDTO>() : results.Select(m =>
+                {
+                    return new PasswordAccountDTO
+                    {
+                        Id = m.Id,
+                        Title = m.Title,
+                        Username = m.Username,
+                        Password = encryptionContext.Decrypt(Convert.FromBase64String(m.Password)).Replace(",", "$"),
+                        UserId = m.Userid,
+                        CreatedAt = m.CreatedAt,
+                        LastUpdatedAt = m.LastUpdatedAt
+                    };
+                });
+            });
+        }).Match(
+            Succ: val => val,
+            Fail: _ => None
+        );
 
     public async Task<IEnumerable<GeneralResponseWithPayload>> CreateMultipleAsync(IEnumerable<PasswordAccountDTO> dtos)
     {
@@ -131,65 +89,94 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         return responses;
     }
 
-    public async Task<GeneralResponseWithPayload> CreateAsync(PasswordAccountDTO model)
-    {
-        model.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password!));
-        model.CreatedAt = DateTime.Now;
-        model.LastUpdatedAt = DateTime.Now;
-        try
+    public async Task<GeneralResponseWithPayload> CreateAsync(PasswordAccountDTO model) => await TryAsync(async () =>
         {
+            model.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password!));
+            model.CreatedAt = DateTime.Now;
+            model.LastUpdatedAt = DateTime.Now;
+
             var record = model.ToPasswordManagerAccount();
             await passwordManagerDbContext.PasswordmanagerAccounts.AddAsync(record);
             await passwordManagerDbContext.SaveChangesAsync();
             return new GeneralResponseWithPayload(Flag: true, Message: "Password record created!", record.Id.ToString());
-        }
-        catch (System.Exception ex)
-        {
-            return new GeneralResponseWithPayload(Flag: false, Message: ex.Message, "");
-        }
-
-    }
+        })
+        .Match(
+            Succ: res => res,
+            Fail: ex => new GeneralResponseWithPayload(Flag: false, Message: ex.Message, "")
+        );
 
     public async Task<GeneralResponse> UpdateAsync(PasswordAccountDTO model)
-    {
-        var dbModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(model.Id);
-        try
+        => await TryAsync(async () =>
         {
+            var dbModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(model.Id);
             dbModel!.LastUpdatedAt = DateTime.Now;
             dbModel.Title = model.Title;
             dbModel.Username = model.Username;
             dbModel.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password));
             await passwordManagerDbContext.SaveChangesAsync();
-        }
-        catch (System.Exception ex)
+
+            return new GeneralResponse(Flag: true, Message: "Password Record Updated!");
+        })
+        .Match(
+            Succ: res => res,
+            Fail: ex => new GeneralResponse(Flag: false, Message: ex.Message)
+        );
+
+
+
+    public async Task<GeneralResponse> DeleteAsync(int passwordRecordId) => await TryAsync(async () =>
         {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
-        }
-        return new GeneralResponse(Flag: true, Message: "Password Record Updated!");
-    }
-
-    public async Task<GeneralResponse> DeleteAsync(int passwordRecordId)
-    {
-        var queryModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(passwordRecordId);
-
-        if (queryModel is null)
-        {
-            return new GeneralResponse(Flag: false, Message: "This record doesn't exist.");
-        }
-
-        passwordManagerDbContext.PasswordmanagerAccounts.Remove(queryModel!);
-
-        try
-        {
+            var queryModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(passwordRecordId);
+            if (queryModel is null)
+            {
+                throw new Exception("This record doesn't exist.");
+            }
+            passwordManagerDbContext.PasswordmanagerAccounts.Remove(queryModel!);
             await passwordManagerDbContext.SaveChangesAsync();
-        }
-        catch (System.Exception ex)
-        {
-            return new GeneralResponse(Flag: false, Message: ex.Message);
-        }
-
-        return new GeneralResponse(Flag: true, Message: "Password Record Deleted!");
-    }
-
+            return new GeneralResponse(Flag: true, Message: "Password Record Deleted!");
+        })
+        .Match(
+            Succ: _ => _,
+            Fail: ex => new GeneralResponse(Flag: false, Message: ex.Message)
+        );
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// public int AccountsCount(int UserId, string title)
+// {
+//     var cnt = passwordManagerDbContext
+//         .PasswordmanagerAccounts
+//         .Where(a => a.Userid == UserId && a.Title.ToLower()
+//         .Contains(title)).Count();
+//     return cnt;
+// }

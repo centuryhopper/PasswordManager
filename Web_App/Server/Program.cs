@@ -1,19 +1,13 @@
-global using Shared;
 global using ConfigurationProvider = Server.Utils.ConfigurationProvider;
 global using static Shared.Models.ServiceResponses;
+global using static LanguageExt.Prelude;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NLog;
-using NLog.Web;
-using NpgsqlTypes;
 using Server.Contexts;
-using Server.Entities;
 using Server.Repositories;
-using Server.Utils;
 using Swashbuckle.AspNetCore.Filters;
 
 
@@ -58,16 +52,15 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
+ConfigurationProvider configurationProvider = new(builder.Environment, builder.Configuration);
+builder.Services.AddSingleton(configurationProvider);
 builder.Services.AddSingleton<EncryptionContext>();
-builder.Services.AddSingleton<ConfigurationProvider>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IPasswordManagerDbRepository, PasswordManagerDbRepository>();
 
 builder.Services.AddDbContext<PasswordManagerDbContext>(options =>
     options.UseNpgsql(
-        builder.Environment.IsDevelopment()
-            ? builder.Configuration.GetConnectionString("DB_CONN")
-            : Environment.GetEnvironmentVariable("DB_CONN")
+        configurationProvider.GetPasswordDBConnectionString
     )
 );
 
@@ -85,17 +78,11 @@ builder
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
-            ValidIssuer = builder.Environment.IsDevelopment()
-                ? builder.Configuration["Jwt:Issuer"]
-                : Environment.GetEnvironmentVariable("Jwt_Issuer"),
-            ValidAudience = builder.Environment.IsDevelopment()
-                ? builder.Configuration["Jwt:Audience"]
-                : Environment.GetEnvironmentVariable("Jwt_Audience"),
+            ValidIssuer = configurationProvider.JwtIssuer,
+            ValidAudience = configurationProvider.JwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-                    builder.Environment.IsDevelopment()
-                        ? builder.Configuration["Jwt:Key"]
-                        : Environment.GetEnvironmentVariable("Jwt_Key")
+                    configurationProvider.JwtKey
                 )
             ),
         };

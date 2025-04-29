@@ -1,3 +1,4 @@
+using LanguageExt;
 using Microsoft.AspNetCore.Http;
 using Server.Contexts;
 using Server.Entities;
@@ -8,8 +9,8 @@ namespace Server.Repositories;
 
 public interface IPasswordManagerDbRepository
 {
-    Task<PasswordAccountDTO?> GetPasswordRecordAsync(int passwordRecordId);
-    Task<IEnumerable<PasswordAccountDTO>> GetAllPasswordRecordsAsync(int userId);
+    Task<Option<PasswordAccountDTO>> GetPasswordRecordAsync(int passwordRecordId);
+    Task<Option<IEnumerable<PasswordAccountDTO>>> GetAllPasswordRecordsAsync(int userId);
     Task<GeneralResponseWithPayload> CreateAsync(PasswordAccountDTO model);
     Task<IEnumerable<GeneralResponseWithPayload>> CreateMultipleAsync(IEnumerable<PasswordAccountDTO> passwordsToAdd);
     Task<GeneralResponse> UpdateAsync(PasswordAccountDTO model);

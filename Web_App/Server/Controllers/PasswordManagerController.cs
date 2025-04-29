@@ -6,6 +6,7 @@ using Shared.Models;
 using Server.Repositories;
 
 using Newtonsoft.Json;
+using LanguageExt;
 
 namespace Server.Controllers;
 
@@ -31,12 +32,12 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
     [HttpGet("getPassword/{passwordRecordId:int}")]
     public async Task<IActionResult> GetPasswordRecord(int passwordRecordId)
     {
-        var passwordRecord = await passwordManagerAccountRepository.GetPasswordRecordAsync(passwordRecordId);
-        if (passwordRecord is null)
-        {
-            return NotFound(null);
-        }
-        return Ok(passwordRecord);
+        Option<PasswordAccountDTO> passwordRecord = await passwordManagerAccountRepository.GetPasswordRecordAsync(passwordRecordId);
+
+        return passwordRecord.Match<IActionResult>(
+            Some: res => Ok(res),
+            None: () => NotFound(null)
+        );
     }
 
     [AllowAnonymous]
@@ -66,7 +67,10 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         // logger.LogWarning(userId);
         var passwordAccounts = await passwordManagerAccountRepository.GetAllPasswordRecordsAsync(Convert.ToInt32(userId));
-        return Ok(passwordAccounts);
+        return passwordAccounts.Match<IActionResult>(
+            Some: res => Ok(res),
+            None: () => NotFound(null)
+        );
     }
 
     [HttpPost("upload-csv")]
@@ -80,9 +84,6 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
         var response = await passwordManagerAccountRepository.UploadCsvAsync(uploadedFileResults, userId);
 
-        // logger.LogWarning(result.Message);
-        // System.Console.WriteLine("nooo");
-
         if (!response.Flag)
         {
             return BadRequest(response);
@@ -93,30 +94,19 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
     [HttpPost("add-passwords")]
     public async Task<IActionResult> AddPasswordRecords([FromBody] IEnumerable<PasswordAccountDTO> dtos)
     {
-        // IEnumerable<PasswordAccountDTO> passwordAccountDTOs = JsonConvert.DeserializeObject<IEnumerable<PasswordAccountDTO>>(items);
-        try
-        {
-            var response = await passwordManagerAccountRepository.CreateMultipleAsync(dtos);
-            return Ok(response);
-        }
-        catch (System.Exception ex)
-        {
-            return BadRequest(new GeneralResponse(Flag: false, Message: ex.Message));
-        }
+        var response = await passwordManagerAccountRepository.CreateMultipleAsync(dtos);
+        return Ok(response);
     }
 
     [HttpPost("add-password")]
     public async Task<IActionResult> AddPasswordRecord([FromBody] PasswordAccountDTO passwordAccountDTO)
     {
-        try
+        var response = await passwordManagerAccountRepository.CreateAsync(passwordAccountDTO);
+        if (!response.Flag)
         {
-            var response = await passwordManagerAccountRepository.CreateAsync(passwordAccountDTO);
-            return Ok(response);
+            return BadRequest(response);
         }
-        catch (System.Exception ex)
-        {
-            return BadRequest(new GeneralResponse(false, ex.Message));
-        }
+        return Ok(response);
     }
 
     [HttpPut("update-password")]
@@ -130,5 +120,4 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         return Ok(response);
     }
 }
-
 
