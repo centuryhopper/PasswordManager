@@ -40,6 +40,14 @@ public class PasswordManagerController(ILogger<PasswordManagerController> logger
         );
     }
 
+    [HttpGet("test-auth")]
+    [Authorize]
+    public IActionResult TestAuth()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Ok($"Authenticated as user {userId}");
+    }
+
     [AllowAnonymous]
     [HttpGet("test")]
     public IActionResult Test()

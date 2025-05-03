@@ -37,6 +37,21 @@ public static class Helpers
     //     };
     // }
 
+    public static PasswordmanagerUserDTO ToDTO(this PasswordmanagerUser obj, List<string> roles)
+    {
+        return new(){
+            Id = obj.Id,
+            Email = obj.Email,
+            Firstname = obj.Firstname,
+            Lastname = obj.Lastname,
+            Datelastlogin = obj.Datelastlogin,
+            Datelastlogout = obj.Datelastlogout,
+            Datecreated = obj.Datecreated,
+            Dateretired = obj.Dateretired,
+            UmsUserid = obj.UmsUserid,
+            Roles = roles,
+        };
+    }
 
     public static PasswordmanagerAccount ToPasswordManagerAccount(this PasswordAccountDTO dto)
     {

@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using NLog.Web.LayoutRenderers;
 using Server.Contexts;
 using Server.Entities;
+using Server.Utils;
 using Shared.Models;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -26,7 +27,7 @@ public partial class AccountRepository(ConfigurationProvider configurationProvid
             from response in SendLoginRequest(dto)
             from loginData in ParseLoginResponse(response)
             from user in UpdateOrCreateUser(loginData)
-            select GenerateToken(user.Id, user.UmsUserid, user.Email, "User");
+            select GenerateToken(user.Id, user.UmsUserid, user.Email, user.Roles.First());
 
         return await result.Match(
             Right: token => new LoginResponse(true, token, "Login completed"),
@@ -92,7 +93,7 @@ public partial class AccountRepository
         })
         .ToEither(ex => ex.Message);
 
-    private EitherAsync<string, PasswordmanagerUser> UpdateOrCreateUser((string userId, string username, string email, List<string> roles) loginData) =>
+    private EitherAsync<string, PasswordmanagerUserDTO> UpdateOrCreateUser((string userId, string username, string email, List<string> roles) loginData) =>
         TryAsync(async () =>
         {
             var (userId, username, email, roles) = loginData;
@@ -113,13 +114,14 @@ public partial class AccountRepository
 
                 await passwordManagerDbContext.PasswordmanagerUsers.AddAsync(newUser);
                 await passwordManagerDbContext.SaveChangesAsync();
-                return newUser;
+                var newUserDTO = newUser.ToDTO(roles);
+                return newUserDTO;
             }
             else
             {
                 existingUser.Datelastlogin = DateTime.Now;
                 await passwordManagerDbContext.SaveChangesAsync();
-                return existingUser;
+                return existingUser.ToDTO(roles);
             }
         })
         .ToEither(ex => ex.Message);
