@@ -34,10 +34,10 @@ public partial class PasswordManagerDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.LastUpdatedAt)
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("last_updated_at");
             entity.Property(e => e.Password)
                 .HasMaxLength(256)

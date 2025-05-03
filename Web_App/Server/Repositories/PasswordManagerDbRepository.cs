@@ -43,8 +43,8 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
                     Title = uploadedResult.Title,
                     Username = uploadedResult.Username,
                     Password = uploadedResult.Password,
-                    CreatedAt = DateTime.Now,
-                    LastUpdatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
+                    LastUpdatedAt = DateTime.UtcNow,
                 });
             }
             return new GeneralResponse(Flag: true, Message: "File uploaded!");
@@ -92,8 +92,8 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
     public async Task<GeneralResponseWithPayload> CreateAsync(PasswordAccountDTO model) => await TryAsync(async () =>
         {
             model.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password!));
-            model.CreatedAt = DateTime.Now;
-            model.LastUpdatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
+            model.LastUpdatedAt = DateTime.UtcNow;
 
             var record = model.ToPasswordManagerAccount();
             await passwordManagerDbContext.PasswordmanagerAccounts.AddAsync(record);
@@ -109,7 +109,7 @@ public class PasswordManagerDbRepository(EncryptionContext encryptionContext, IL
         => await TryAsync(async () =>
         {
             var dbModel = await passwordManagerDbContext.PasswordmanagerAccounts.FindAsync(model.Id);
-            dbModel!.LastUpdatedAt = DateTime.Now;
+            dbModel!.LastUpdatedAt = DateTime.UtcNow;
             dbModel.Title = model.Title;
             dbModel.Username = model.Username;
             dbModel.Password = Convert.ToBase64String(encryptionContext.Encrypt(model.Password));
