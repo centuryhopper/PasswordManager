@@ -28,7 +28,7 @@ deploy: clean
 
 	# Git commit and push
 	git add .;
-	git commit -m "message: $(m)" || echo "Nothing to commit"
+	git commit -m "update" || echo "Nothing to commit"
 	git push
 
 
