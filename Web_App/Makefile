@@ -27,8 +27,8 @@ deploy: clean
 	cp -rf ./Shared/Models/* ./Server/Models/
 
 	# Git commit and push
-	git add .
-	git commit -m "$(m)" || echo "Nothing to commit"
+	git add .;
+	git commit -m "message: $(m)" || echo "Nothing to commit"
 	git push
 
 
