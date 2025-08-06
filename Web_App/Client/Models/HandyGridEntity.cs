@@ -31,9 +31,9 @@ public class HandyGridEntity : HandyGridEntityAbstract<PasswordAccountDTO>
             case nameof(Object.Password):
                 return Object.Password;
             case nameof(Object.CreatedAt):
-                return Object.CreatedAt is null ? DateTime.Now.ToString("yyyy-MM-dd") : Object.CreatedAt.GetValueOrDefault().ToString("yyyy-MM-dd");
+                return Object.CreatedAt is null ? DateTime.UtcNow.ToString("yyyy-MM-dd") : Object.CreatedAt.GetValueOrDefault().ToString("yyyy-MM-dd");
             case nameof(Object.LastUpdatedAt):
-                return Object.LastUpdatedAt is null ? DateTime.Now.ToString("yyyy-MM-dd") : Object.LastUpdatedAt.GetValueOrDefault().ToString("yyyy-MM-dd");
+                return Object.LastUpdatedAt is null ? DateTime.UtcNow.ToString("yyyy-MM-dd") : Object.LastUpdatedAt.GetValueOrDefault().ToString("yyyy-MM-dd");
             default:
                 throw new Exception("Invalid property name");
         }

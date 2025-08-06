@@ -9,7 +9,7 @@ using Client.Providers;
 using Client.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
 using Shared.Models;
-using static Shared.Models.ServiceResponses;
+
 
 namespace Client.Services;
 
@@ -28,13 +28,13 @@ public class AccountService : IAccountService
         this.sessionStorageService = sessionStorageService;
     }
 
-    public async Task<LoginResponse> LoginAsync(LoginDTO loginDTO)
+    public async Task<HandyLoginResponse> LoginAsync(LoginDTO loginDTO)
     {
         try
         {
             //System.Console.WriteLine("logging in");
             var response = await httpClient.PostAsJsonAsync("api/Account/login", loginDTO);
-            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            var loginResponse = await response.Content.ReadFromJsonAsync<HandyLoginResponse>();
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception(loginResponse!.Message);
@@ -60,7 +60,7 @@ public class AccountService : IAccountService
         }
         catch (System.Exception ex)
         {
-            return new LoginResponse(Flag: false, Token: "", Message: ex.Message);
+            return new HandyLoginResponse(Flag: false, Token: "", Message: ex.Message);
         }
     }
 

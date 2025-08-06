@@ -1,4 +1,4 @@
-
+global using static HandyBlazorComponents.Models.HandyServiceResponses;
 global using HandyBlazorComponents.Components.Public;
 global using HandyBlazorComponents.Components.Public.Modals;
 global using Shared.Models;

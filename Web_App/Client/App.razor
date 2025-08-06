@@ -17,10 +17,10 @@
 </CascadingAuthenticationState>
 
 
-@* 30 minutes *@
+@* 90 minutes *@
 <NavigationChecker 
     @ref="navigationChecker"
-    Seconds="@(30 * 60)"
+    Seconds="@(90 * 60)"
     JWT_TOKEN_NAME="@JwtConfig.JWT_TOKEN_NAME"
     JWT_TOKEN_EXP_DATE_NAME="@JwtConfig.JWT_TOKEN_EXP_DATE_NAME" />
 
@@ -36,3 +36,4 @@
             JwtConfig.JWT_TOKEN_EXP_DATETIME);
     }
 }
+
