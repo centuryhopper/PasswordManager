@@ -20,5 +20,7 @@ Accept: application/json
 
 
 ###
+POST https://mypasswordmanager-production-b6be.up.railway.app/api/Account/send-2fa-code/lynnfavor7@gmail.com
+Accept: application/json
 
 

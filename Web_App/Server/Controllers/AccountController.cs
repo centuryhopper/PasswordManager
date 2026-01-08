@@ -77,7 +77,7 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
 
         var smtpInfo = env.IsDevelopment() ? configuration.GetConnectionString("smtp_client").Split("|") : Environment.GetEnvironmentVariable("smtp_client").Split("|");
 
-        Helpers.SendEmail(
+        await Helpers.SendEmailAsync(
             subject: "2FA Verification",
             senderEmail: smtpInfo[0],
             senderPassword: smtpInfo[1],
@@ -85,6 +85,7 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
             receivers: [email!],
             textFormat: TextFormat.Html
         );
+        
         return Ok(new GeneralResponse(true, msg));
     }
 
