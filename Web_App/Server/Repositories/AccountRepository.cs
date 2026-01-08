@@ -21,7 +21,7 @@ public partial class AccountRepository(ConfigurationProvider configurationProvid
 {
     public async Task<GeneralResponse> CheckPasswordManagerUser(LoginDTO loginDTO)
     {
-        var result = await httpClient.GetAsync($"https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/check-user/{loginDTO.Email}/{loginDTO.Password}");
+        var result = await httpClient.GetAsync($"https://leoums.dev/api/UMS/check-user/{loginDTO.Email}/{loginDTO.Password}");
         if (!result.IsSuccessStatusCode)
         {
             return new GeneralResponse(false, "Invalid user credentials");
@@ -104,7 +104,7 @@ public partial class AccountRepository
 {
     public async Task<bool> GetTwoFactorStatus(string email)
     {
-        var response = await httpClient.GetAsync("https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/get-2fa-status/" + email);
+        var response = await httpClient.GetAsync("https://leoums.dev/api/UMS/get-2fa-status/" + email);
 
         using var stream = await response.Content.ReadAsStreamAsync();
         using var doc = await JsonDocument.ParseAsync(stream);
@@ -116,7 +116,7 @@ public partial class AccountRepository
 
     public async Task<(string, bool)> SendTwoFactorCode(string email)
     {
-        var response = await httpClient.GetAsync("https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/send-2fa-code/" + email);
+        var response = await httpClient.GetAsync("https://leoums.dev/api/UMS/send-2fa-code/" + email);
         using var stream = await response.Content.ReadAsStreamAsync();
         using var doc = await JsonDocument.ParseAsync(stream);
         var root = doc.RootElement;
@@ -127,7 +127,7 @@ public partial class AccountRepository
 
     public EitherAsync<string, (string, string, string, List<string>)> VerifyTwoFactorCode(string email, string code) => TryAsync(async () =>
     {
-        var query = $"https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/verify-2fa?email={email}&code={code}";
+        var query = $"https://leoums.dev/api/UMS/verify-2fa?email={email}&code={code}";
         var response = await httpClient.GetAsync(query);
         using var stream = await response.Content.ReadAsStreamAsync();
         using var doc = await JsonDocument.ParseAsync(stream);
@@ -156,7 +156,7 @@ public partial class AccountRepository
     private EitherAsync<string, HttpResponseMessage> SendLoginRequest(LoginDTO loginDTO) =>
        TryAsync(async () =>
        {
-           var response = await httpClient.PostAsJsonAsync("https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/get-user-credentials?appName=PasswordManager", loginDTO);
+           var response = await httpClient.PostAsJsonAsync("https://leoums.dev/api/UMS/get-user-credentials?appName=PasswordManager", loginDTO);
            response.EnsureSuccessStatusCode();
            return response;
        })

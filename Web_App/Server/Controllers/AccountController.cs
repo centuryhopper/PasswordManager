@@ -75,16 +75,16 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
             return BadRequest(new GeneralResponse(false, msg));
         }
 
-        var smtpInfo = env.IsDevelopment() ? configuration.GetConnectionString("smtp_client").Split("|") : Environment.GetEnvironmentVariable("smtp_client").Split("|");
+        // var smtpInfo = env.IsDevelopment() ? configuration.GetConnectionString("smtp_client").Split("|") : Environment.GetEnvironmentVariable("smtp_client").Split("|");
 
-        await Helpers.SendEmailAsync(
-            subject: "2FA Verification",
-            senderEmail: smtpInfo[0],
-            senderPassword: smtpInfo[1],
-            body: Helpers.Build2FAHtmlEmail(email: email, twoFaToken: msg),
-            receivers: [email!],
-            textFormat: TextFormat.Html
-        );
+        // await Helpers.SendEmailAsync(
+        //     subject: "2FA Verification",
+        //     senderEmail: smtpInfo[0],
+        //     senderPassword: smtpInfo[1],
+        //     body: Helpers.Build2FAHtmlEmail(email: email, twoFaToken: msg),
+        //     receivers: [email!],
+        //     textFormat: TextFormat.Html
+        // );
         
         return Ok(new GeneralResponse(true, msg));
     }
