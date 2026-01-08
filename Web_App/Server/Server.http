@@ -1,6 +1,24 @@
-@Server_HostAddress = http://localhost:5223
+@Server_HostAddress = http://localhost:5221
 
-GET {{Server_HostAddress}}/weatherforecast/
+# GET {{Server_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+###
+
+GET https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/get-2fa-status/lynnfavor7@gmail.com
 Accept: application/json
 
 ###
+
+GET https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/send-2fa-code/lynnfavor7@gmail.com
+Accept: application/json
+
+### 
+
+GET {{Server_HostAddress}}/api/Account/verify-2fa?email=hello@email.com&code=
+Accept: application/json
+
+
+###
+
+

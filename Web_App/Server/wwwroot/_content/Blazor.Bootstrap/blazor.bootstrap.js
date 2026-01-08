@@ -724,6 +724,36 @@ window.blazorBootstrap = {
                 bootstrap?.Offcanvas?.getOrCreateInstance(offcanvasEl)?.dispose();
         }
     },
+    radioInput: {
+        isChanging: false,
+        initialize: (elementId, elementName, dotNetHelper) => {
+            let radioEl = document.getElementById(elementId);
+            if (radioEl == null)
+                return;
+
+            radioEl.addEventListener('change', function () {
+                try {
+                    dotNetHelper.invokeMethodAsync('OnChangeJS', radioEl.checked);
+
+                    let radioEls = document.getElementsByName(elementName) ?? [];
+                    radioEls.forEach((el, index) => {
+
+                        if (window.blazorBootstrap.radioInput.isChanging)
+                            return;
+
+                        if (el.id !== radioEl.id) {
+                            window.blazorBootstrap.radioInput.isChanging = true;
+                            el.checked = false;
+                            el.dispatchEvent(new Event('change'));
+                        }
+                    });
+                }
+                finally {
+                    window.blazorBootstrap.radioInput.isChanging = false;
+                }
+            });
+        }
+    },
     rangeInput: {
         initialize: (elementId, dotNetHelper) => {
             let rangeEl = document.getElementById(elementId);
@@ -933,6 +963,16 @@ window.blazorBootstrap = {
 
         return false;
     },
+    scrollToElementBottom: (elementId) => {
+        let el = document.getElementById(elementId);
+        if (el)
+            el.scrollTop = el.scrollHeight;
+    },
+    scrollToElementTop: (elementId) => {
+        let el = document.getElementById(elementId);
+        if (el)
+            el.scrollTop = 0;
+    }
 }
 
 window.blazorChart = {
@@ -1001,7 +1041,7 @@ window.blazorChart = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 
@@ -1265,7 +1305,7 @@ window.blazorChart.doughnut = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.doughnut.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 
@@ -1569,7 +1609,7 @@ window.blazorChart.pie = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.pie.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 
@@ -1705,7 +1745,7 @@ window.blazorChart.polarArea = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.polarArea.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 
@@ -1840,7 +1880,7 @@ window.blazorChart.radar = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.radar.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 
@@ -1975,7 +2015,7 @@ window.blazorChart.scatter = {
         }
     },
     updateDataValues: (elementId, data) => {
-        let chart = window.blazorChart.line.get(elementId);
+        let chart = window.blazorChart.scatter.get(elementId);
         if (chart) {
             chart.data.datasets.splice(data.datasets.length);
 

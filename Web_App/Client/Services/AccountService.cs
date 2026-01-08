@@ -2,6 +2,7 @@
 
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Client.Interfaces;
@@ -9,6 +10,7 @@ using Client.Providers;
 using Client.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
 using Shared.Models;
+using static Shared.Models.ServiceResponses;
 
 
 namespace Client.Services;
@@ -28,13 +30,33 @@ public class AccountService : IAccountService
         this.sessionStorageService = sessionStorageService;
     }
 
-    public async Task<HandyLoginResponse> LoginAsync(LoginDTO loginDTO)
+    public async Task<LoginResponse> LoginAsync(LoginDTO loginDTO)
     {
         try
         {
-            //System.Console.WriteLine("logging in");
+            var checkUser = await httpClient.GetFromJsonAsync<GeneralResponse>($"api/Account/check-user/{loginDTO.Email}/{loginDTO.Password}");
+
+            if (!checkUser!.Flag)
+            {
+                return new LoginResponse(Flag: false, Token: "", Message: checkUser.Message);
+            }
+
+            var twoFaResponse = await httpClient.GetAsync("api/Account/get-2fa-status/" + loginDTO.Email);
+            using var stream = await twoFaResponse.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+            var root = doc.RootElement;
+            var twoFactorEnabled = root.GetProperty("twoFactorStatus").GetBoolean();
+
+            Console.WriteLine($"twoFactorEnabled: {twoFactorEnabled}");
+            // await Task.Delay(5000); // Simulate network delay for better UX testing
+
+            if (twoFactorEnabled)
+            {
+                return new(Flag: true, Token: "", Message: "Check your email for the 2FA code.");
+            }
+
             var response = await httpClient.PostAsJsonAsync("api/Account/login", loginDTO);
-            var loginResponse = await response.Content.ReadFromJsonAsync<HandyLoginResponse>();
+            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception(loginResponse!.Message);
@@ -60,7 +82,7 @@ public class AccountService : IAccountService
         }
         catch (System.Exception ex)
         {
-            return new HandyLoginResponse(Flag: false, Token: "", Message: ex.Message);
+            return new LoginResponse(Flag: false, Token: "", Message: ex.Message);
         }
     }
 

@@ -1,22 +1,41 @@
 @page "/login"
 @using Microsoft.AspNetCore.Components.Forms
 @inject IAccountService accountService
-@inject NavigationManager NavigationManager
-@inject IHttpClientFactory httpClientFactory
 
 <LoginComponent
     NoticeText="@("Please log in to view your information. To request that your account be deleted, please email me.")"
-    RedirectLink="passwords" CooldownSeconds="5" MaxAttempts="5" LoginCallBack="@(async (model) => {
-    //Console.WriteLine(model.Email);
-    //Console.WriteLine(model.Password);
-    //Console.WriteLine(model.RememberMe);
+    RedirectLink="" CooldownSeconds="5" MaxAttempts="5" LoginCallBack="@(async (model) => {
+    // Console.WriteLine(model.Email);
+    // Console.WriteLine(model.Password);
+    // Console.WriteLine(model.RememberMe);
+    Console.WriteLine("calling loginasync");
     var response = await accountService.LoginAsync(new LoginDTO {
         Email = model.Email,
         Password = model.Password,
         RememberMe = model.RememberMe,
     });
 
-    return new HandyLoginResponse(Flag: response.Flag, Token: response.Token, Message: response.Message);
+    //Console.WriteLine(response.Flag);
+    //Console.WriteLine(response.Message);
+
+    if (response.Flag && string.IsNullOrWhiteSpace(response.Token))
+    {
+        //Console.WriteLine("2FA required!");
+        return new HandyLoginResponse(Flag: false,  Message: "", OnFailure: () => {
+            NavigationManager.NavigateTo($"verify-2fa?email={Uri.EscapeDataString(model.Email)}&rememberMe={model.RememberMe}", true);
+        }, OnSuccess: default!);
+    }
+
+    if (response.Flag)
+    {
+        return new HandyLoginResponse(Flag: response.Flag,  Message: response.Message, OnSuccess: () => {
+            NavigationManager.NavigateTo("passwords", true);
+        }, OnFailure: default!);
+    }
+
+    return new HandyLoginResponse(Flag: false,  Message: response.Message, OnSuccess: default!, OnFailure: default!);
+
+    
 })" />
 
 <div class="text-center">
@@ -27,3 +46,4 @@
         </a>
     </p>
 </div>
+

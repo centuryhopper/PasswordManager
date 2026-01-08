@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text.Json;
 
 namespace Client.Providers;
+
 public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly HttpClient httpClient;
@@ -64,7 +65,11 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     public IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
         var claims = new List<Claim>();
+        // System.Console.WriteLine("parsing claims");
+        // System.Console.WriteLine(jwt);
+        // System.Console.WriteLine(jwt.Split('.').Length);
         var payload = jwt.Split('.')[1];
+        // System.Console.WriteLine("payload: " + payload);
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
