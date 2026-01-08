@@ -38,10 +38,10 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
         return Ok(response);
     }
 
-    [HttpGet("check-user/{email}/{password}")]
-    public async Task<IActionResult> CheckPasswordManagerUser(string email, string password)
+    [HttpPost("check-user")]
+    public async Task<IActionResult> CheckPasswordManagerUser([FromBody] LoginDTO loginDTO)
     {
-        var response = await accountRepository.CheckPasswordManagerUser(new LoginDTO { Email = email, Password = password });
+        var response = await accountRepository.CheckPasswordManagerUser(loginDTO);
         return Ok(response);
     }
 

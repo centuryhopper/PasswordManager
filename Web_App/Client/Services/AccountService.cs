@@ -34,7 +34,9 @@ public class AccountService : IAccountService
     {
         try
         {
-            var checkUser = await httpClient.GetFromJsonAsync<GeneralResponse>($"api/Account/check-user/{loginDTO.Email}/{loginDTO.Password}");
+            var checkUserResponse = await httpClient.PostAsJsonAsync<LoginDTO>($"api/Account/check-user", loginDTO);
+
+            var checkUser = await checkUserResponse.Content.ReadFromJsonAsync<GeneralResponse>();
 
             if (!checkUser!.Flag)
             {

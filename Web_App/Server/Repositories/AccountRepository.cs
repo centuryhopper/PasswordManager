@@ -13,6 +13,7 @@ using Server.Utils;
 using Shared.Models;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Net.Http.Json;
 
 
 namespace Server.Repositories;
@@ -21,7 +22,7 @@ public partial class AccountRepository(ConfigurationProvider configurationProvid
 {
     public async Task<GeneralResponse> CheckPasswordManagerUser(LoginDTO loginDTO)
     {
-        var result = await httpClient.GetAsync($"https://leoums.dev/api/UMS/check-user/{loginDTO.Email}/{loginDTO.Password}");
+        var result = await httpClient.PostAsJsonAsync("https://leoums.dev/api/UMS/check-user", loginDTO);
         if (!result.IsSuccessStatusCode)
         {
             return new GeneralResponse(false, "Invalid user credentials");
