@@ -42,6 +42,7 @@ public class AccountController(IAccountRepository accountRepository, ILogger<Acc
     public async Task<IActionResult> CheckPasswordManagerUser([FromBody] LoginDTO loginDTO)
     {
         var response = await accountRepository.CheckPasswordManagerUser(loginDTO);
+        logger.LogWarning($"Flag: {response.Flag}, Message: {response.Message}");
         return Ok(response);
     }
 
