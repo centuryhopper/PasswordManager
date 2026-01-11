@@ -18,3 +18,14 @@ Accept: application/json
   "email": "email",
   "password": "password"
 }
+###
+
+POST https://leoums.dev/api/UMS/get-user-credentials?appName=PasswordManager
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "email",
+  "password": "password"
+}
+

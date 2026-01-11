@@ -34,28 +34,28 @@ public class AccountService : IAccountService
     {
         try
         {
-            var checkUserResponse = await httpClient.PostAsJsonAsync<LoginDTO>($"api/Account/check-user", loginDTO);
-
-            var checkUser = await checkUserResponse.Content.ReadFromJsonAsync<GeneralResponse>();
-
-            if (!checkUser!.Flag)
-            {
-                return new LoginResponse(Flag: false, Token: "", Message: checkUser.Message);
-            }
-
-            var twoFaResponse = await httpClient.GetAsync("api/Account/get-2fa-status/" + loginDTO.Email);
-            using var stream = await twoFaResponse.Content.ReadAsStreamAsync();
-            using var doc = await JsonDocument.ParseAsync(stream);
-            var root = doc.RootElement;
-            var twoFactorEnabled = root.GetProperty("twoFactorStatus").GetBoolean();
-
-            Console.WriteLine($"twoFactorEnabled: {twoFactorEnabled}");
-            // await Task.Delay(5000); // Simulate network delay for better UX testing
-
-            if (twoFactorEnabled)
-            {
-                return new(Flag: true, Token: "", Message: "Check your email for the 2FA code.");
-            }
+            //var checkUserResponse = await httpClient.PostAsJsonAsync<LoginDTO>($"api/Account/check-user", loginDTO);
+//
+            //var checkUser = await checkUserResponse.Content.ReadFromJsonAsync<GeneralResponse>();
+//
+            //if (!checkUser!.Flag)
+            //{
+            //    return new LoginResponse(Flag: false, Token: "", Message: checkUser.Message);
+            //}
+//
+            //var twoFaResponse = await httpClient.GetAsync("api/Account/get-2fa-status/" + loginDTO.Email);
+            //using var stream = await twoFaResponse.Content.ReadAsStreamAsync();
+            //using var doc = await JsonDocument.ParseAsync(stream);
+            //var root = doc.RootElement;
+            //var twoFactorEnabled = root.GetProperty("twoFactorStatus").GetBoolean();
+//
+            //Console.WriteLine($"twoFactorEnabled: {twoFactorEnabled}");
+            //// await Task.Delay(5000); // Simulate network delay for better UX testing
+//
+            //if (twoFactorEnabled)
+            //{
+            //    return new(Flag: true, Token: "", Message: "Check your email for the 2FA code.");
+            //}
 
             var response = await httpClient.PostAsJsonAsync("api/Account/login", loginDTO);
             var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();

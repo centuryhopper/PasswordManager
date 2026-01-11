@@ -160,6 +160,12 @@ public partial class AccountRepository
        {
            var response = await httpClient.PostAsJsonAsync("https://leoums.dev/api/UMS/get-user-credentials?appName=PasswordManager", loginDTO);
            response.EnsureSuccessStatusCode();
+           // var responseContent = await response.Content.ReadFromJsonAsync<GeneralResponse>();
+           // if (!responseContent?.Flag ?? false)
+           // {
+           //     throw new Exception("Login request failed: " + responseContent?.Message);
+           // }
+
            return response;
        })
        .ToEither(ex => ex.Message);
@@ -177,7 +183,8 @@ public partial class AccountRepository
 
             var roles = root.GetProperty("roles")
                 .EnumerateArray()
-                .Select(r => r.GetProperty("role").GetString() ?? "")
+                // .Select(r => r.GetProperty("role").GetString() ?? "")
+                .Select(r => r.GetString() ?? "")
                 .Where(role => !string.IsNullOrWhiteSpace(role))
                 .ToList();
 
