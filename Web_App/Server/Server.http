@@ -8,5 +8,13 @@
 GET {{Server_HostAddress}}/api/Account/verify-2fa?email=hello@email.com&code=
 Accept: application/json
 
+###
 
+POST https://leoums.dev/api/UMS/check-user
+Content-Type: application/json
+Accept: application/json
 
+{
+  "email": "email",
+  "password": "password"
+}

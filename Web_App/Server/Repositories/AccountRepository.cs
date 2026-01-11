@@ -25,6 +25,7 @@ public partial class AccountRepository(ConfigurationProvider configurationProvid
         var result = await httpClient.PostAsJsonAsync("https://leoums.dev/api/UMS/check-user", loginDTO);
         if (!result.IsSuccessStatusCode)
         {
+            System.Console.WriteLine("Check user failed");
             return new GeneralResponse(false, "Invalid user credentials");
         }
         return new GeneralResponse(true, "User verified");
