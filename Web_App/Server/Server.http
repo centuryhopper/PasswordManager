@@ -20,7 +20,7 @@ Accept: application/json
 }
 ###
 
-POST https://dotnetusermanagementsystem-production.up.railway.app/api/UMS/get-user-credentials?appName=PasswordManager
+POST https://leoums.dev/api/UMS/get-user-credentials?appName=PasswordManager
 Content-Type: application/json
 Accept: application/json
 
