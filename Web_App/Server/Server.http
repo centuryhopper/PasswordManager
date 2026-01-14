@@ -29,3 +29,8 @@ Accept: application/json
   "password": "password"
 }
 
+
+###
+
+GET https://leoums.dev/api/UMS/get-2fa-status/lynnfavor7@gmail.com
+Accept: application/json

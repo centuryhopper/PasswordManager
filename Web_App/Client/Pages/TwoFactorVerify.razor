@@ -23,16 +23,31 @@
         <small class="form-text text-muted">Check your email for the code.</small>
     </div>
 
-    <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+    <button type="submit" class="btn btn-primary" disabled="@(cooldownTimer?.IsCoolingDown ?? false || IsSubmitting)">
         @(IsSubmitting ? "Verifying..." : "Verify")
     </button>
+
+    @if (!string.IsNullOrWhiteSpace(attemptsNotice))
+    {
+        <p class="text-danger m-3">
+            @attemptsNotice
+        </p>
+    }
 </EditForm>
 
+<CooldownTimer @ref="cooldownTimer" CooldownTime="coolDownSeconds" MaxAttempts="maxVerifyCount" OnCooldownComplete="@(() => {
+    verifyCount = 0;
+    ErrorMessage = ""; // Clear any previous error messages
+    attemptsNotice = "";
+    StateHasChanged();
+})" />
 
 <StackedHandyToast @ref="stackedHandyToast" Title="Success" Message="Your operation completed successfully."
     ToastType="HandyToastType.SUCCESS" Duration="5" Position="HandyToastPosition.CENTER_ALIGN" />
 
+
 @code {
+    
     [Parameter] public bool RememberMe { get; set; }
     private string ErrorMessage = string.Empty;
     private bool IsSubmitting = false;
@@ -41,7 +56,11 @@
     private TwoFactorModel twoFactorModel = new();
     private StackedHandyToast stackedHandyToast = default!;
 
-
+    private CooldownTimer cooldownTimer = default!;
+    private int verifyCount = 0;
+    private int maxVerifyCount = 5; // e.g., 5 attempts
+    private int coolDownSeconds = 5;
+    private string attemptsNotice = "";
 
     private class TwoFactorModel
     {
@@ -93,8 +112,6 @@
             var response = await httpClient.GetFromJsonAsync<LoginResponse>("api/Account/login-with-2fa?email=" +
             Uri.EscapeDataString(twoFactorModel.Email) + "&code=" + Uri.EscapeDataString(twoFactorModel.Code));
 
-            //Console.WriteLine(response);
-
             if (response.Flag)
             {
                 if (RememberMe)
@@ -117,15 +134,18 @@
                 ErrorMessage = !string.IsNullOrEmpty(response.Message) ? response.Message : "Invalid 2FA code.";
             }
         }
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine(ex.InnerException?.Message);
-        //    Console.WriteLine(ex.Message);
-        //    ErrorMessage = $"An error occurred: {ex.InnerException?.Message ?? ex.Message}";
-        //}
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException?.Message);
+            Console.WriteLine(ex.Message);
+            ErrorMessage = $"Either the code has expired or is invalid. Please try again.";
+        }
         finally
         {
+            cooldownTimer.IncrementSubmissionCount();
+            attemptsNotice = $"{++verifyCount} of {maxVerifyCount} attempts";
             IsSubmitting = false;
         }
     }
+
 }
