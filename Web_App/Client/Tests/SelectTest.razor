@@ -1,0 +1,25 @@
+<h3>Test Select Dropdown</h3>
+
+<p>Selected value: @SelectedNumber</p>
+
+<select class="form-select w-auto"
+        @bind="SelectedNumber">
+    <option value="">-- Choose a number --</option>
+    @foreach (var number in Numbers)
+    {
+        <option value="@number">@number</option>
+    }
+</select>
+
+<button class="btn btn-primary mt-2" @onclick="Randomize">Randomize</button>
+
+@code {
+    private List<int> Numbers = new() { 5, 10, 25, 50, 100 };
+    private int SelectedNumber { get; set; } = 10;
+
+    private void Randomize()
+    {
+        var rand = new Random();
+        SelectedNumber = Numbers[rand.Next(Numbers.Count)];
+    }
+}

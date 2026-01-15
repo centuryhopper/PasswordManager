@@ -4,7 +4,6 @@
 @inherits LayoutComponentBase
 
 
-
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -18,8 +17,8 @@
                     <!-- title is too long for a 1.6 rem font size-->
                     <div class="container-fluid">
                         <a class="logo-placement" href="#">
-                            <img src="images/password_manager_flaticon.png"
-                                alt="Password Manager Flaticon Logo" class="logo-img" />
+                            <img src="images/password_manager_flaticon.png" alt="Password Manager Flaticon Logo"
+                                class="logo-img" />
                         </a>
                         <span style="padding-left: 120px;">
                             <!-- Change this value to change upper Page Header title-->
@@ -39,17 +38,20 @@
             <br />
         </header>
         <div class="content px-4">
-            @Body
-        </div>
-        <footer id="fwc-footer">
-            <div class="version-foot-style">
-                All rights reserved<br />
-                &copy; @DateTime.UtcNow.Year Leo Zhang 
-                <br />
+            <div class="container">
+                @Body
             </div>
-        </footer>
+        </div>
     </div>
+    <footer id="fwc-footer">
+        <div class="version-foot-style">
+            All rights reserved<br />
+            &copy; @DateTime.UtcNow.Year Leo Zhang
+            <br />
+        </div>
+    </footer>
 </div>
+
 @code {
     private bool isAuthenticated;
     protected override async Task OnInitializedAsync()

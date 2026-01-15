@@ -104,3 +104,60 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
+}
+
+/* Sidebar stays fixed width */
+.sidebar {
+    width: 250px; /* adjust as needed */
+    flex-shrink: 0;
+}
+
+/* Main area fills remaining space */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+     min-width: 0; /* 🔥 critical for flex overflow issues */
+}
+
+/* Header stays natural height */
+#fwc-header {
+    flex-shrink: 0;
+}
+
+/* Content grows to push footer down */
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* horizontal center */
+}
+
+/* Constrain body width */
+.content .container {
+    width: 100%;
+    max-width: 1100px; /* adjust to taste */
+
+    padding-left: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box;
+}
+
+/* Footer sticks to bottom */
+#fwc-footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 1rem 0;
+    background-color: #f5f5f5;
+}
