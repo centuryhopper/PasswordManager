@@ -31,9 +31,6 @@
                         </span>
                     </div>
                 </div>
-                @* <div class="top-row px-4 auth">
-                    <LoginDisplay />
-                </div> *@
             </div>
             <br />
         </header>
@@ -43,14 +40,34 @@
             </div>
         </div>
     </div>
-    <footer id="fwc-footer">
-        <div class="version-foot-style">
-            All rights reserved<br />
-            &copy; @DateTime.UtcNow.Year Leo Zhang
-            <br />
-        </div>
-    </footer>
 </div>
+<footer id="fwc-footer">
+    <div class="version-foot-style">
+        All rights reserved<br />
+        &copy; @DateTime.UtcNow.Year Leo Zhang
+        <br />
+    </div>
+</footer>
+
+<style>
+    /* Fixed footer */
+    #fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+
+        background-color: #1f2937;
+        color: white;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        z-index: 1000;
+    }
+</style>
 
 @code {
     private bool isAuthenticated;
