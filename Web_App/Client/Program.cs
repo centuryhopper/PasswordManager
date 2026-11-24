@@ -1,6 +1,4 @@
 global using static HandyBlazorComponents.Models.HandyServiceResponses;
-global using HandyBlazorComponents.Components.Public;
-global using HandyBlazorComponents.Components.Public.Modals;
 global using Shared.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -13,8 +11,8 @@ using Client.Services;
 using Client.Handlers;
 using Client.Utils;
 using Blazored.SessionStorage;
-using Client.Models;
 using HandyBlazorComponents.Extensions;
+using Radzen;
 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -43,10 +41,11 @@ builder.Services.AddHandyBlazorServices();
 
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddRadzenComponents();
 
 
 
-builder.Services.AddBlazorBootstrap();
+// builder.Services.AddBlazorBootstrap();
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
