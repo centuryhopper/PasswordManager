@@ -1,6 +1,5 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
-@using HandyBlazorComponents.Services
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -15,21 +14,13 @@
 @using Client.Providers
 @using Client.Interfaces
 @using Client.Layout
-@using Client.Models
 @using Shared
 @using Shared.Models
 @using Newtonsoft.Json
 @using System.Security.Claims
 @using Blazored.SessionStorage
-@using HandyBlazorComponents.Components
-@using HandyBlazorComponents.Models
-@using HandyBlazorComponents.Abstracts
 @using CsvHelper.Configuration
-@using ModalType = HandyBlazorComponents.Models.HandyModalType
-@using static HandyBlazorComponents.Models.HandyServiceResponses
 @using System.Globalization
-@using HandyBlazorComponents.Components.Public
-@using HandyBlazorComponents.Components.Public.Modals
 @using Radzen
 @using Radzen.Blazor
 
@@ -42,5 +33,4 @@
 @inject ISessionStorageService sessionStorageService
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory httpClientFactory
-@inject HandyBlazorService HandyBlazorService
 

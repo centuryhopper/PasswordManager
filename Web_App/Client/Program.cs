@@ -1,4 +1,3 @@
-global using static HandyBlazorComponents.Models.HandyServiceResponses;
 global using Shared.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -11,7 +10,6 @@ using Client.Services;
 using Client.Handlers;
 using Client.Utils;
 using Blazored.SessionStorage;
-using HandyBlazorComponents.Extensions;
 using Radzen;
 
 
@@ -37,7 +35,6 @@ builder.Services.AddScoped(
     sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.HTTP_CLIENT)
 );
 
-builder.Services.AddHandyBlazorServices();
 
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddBlazoredSessionStorage();

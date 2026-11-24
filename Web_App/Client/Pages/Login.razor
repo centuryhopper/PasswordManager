@@ -1,49 +1,149 @@
 @page "/login"
 @using Microsoft.AspNetCore.Components.Forms
+@using static Shared.Models.ServiceResponses
 @inject IAccountService accountService
 
-<LoginComponent
-    NoticeText="@("Please log in to view your information. To request that your account be deleted, please email me.")"
-    RedirectLink="" CooldownSeconds="5" MaxAttempts="5" LoginCallBack="@(async (model) => {
-    // Console.WriteLine(model.Email);
-    // Console.WriteLine(model.Password);
-    // Console.WriteLine(model.RememberMe);
-    Console.WriteLine("calling loginasync");
-    var response = await accountService.LoginAsync(new LoginDTO {
-        Email = model.Email,
-        Password = model.Password,
-        RememberMe = model.RememberMe,
-    });
+@inject NavigationManager NavigationManager
 
-    Console.WriteLine(response.Flag);
-    Console.WriteLine(response.Message);
 
-    if (response.Flag && string.IsNullOrWhiteSpace(response.Token))
-    {
-        //Console.WriteLine("2FA required!");
-        return new HandyLoginResponse(Flag: false,  Message: "", OnFailure: () => {
-            NavigationManager.NavigateTo($"verify-2fa?email={Uri.EscapeDataString(model.Email)}&rememberMe={model.RememberMe}", true);
-        }, OnSuccess: default!);
+@if (jsReady)
+{
+    <div class="container">
+        <div id="cooldown-timer" class="text-danger"></div>
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <div class="card">
+                <h4 class="card-header">Login</h4>
+                <div class="card-body">
+                    <DataAnnotationsValidator />
+                    <p class="form-group">
+                        <label for="email">Email</label>
+                        <InputText id="email" class="form-control" @bind-Value="model.Email" />
+                        <ValidationMessage For="@(() => model.Email)" />
+                    </p>
+                    <p class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <InputText id="password" class="form-control" @bind-Value="model.Password" type="@passwordType" />
+                            <div class="input-group-append">
+                                <div class="input-group-addon">
+                                    <span class="input-group-text">
+                                        <a @onclick="@((m) => TogglePasswordVisibility(m))"
+                                           @onkeypress="TogglePasswordVisibility" @onkeypress:preventDefault="true"
+                                           tabindex="0" style="color: black; cursor: pointer;">
+                                            <i class="fa @iconClass field-icon m-1" aria-hidden="true"></i></a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => model.Password)" />
+                        </p>
+                    </div>
+            </div>
+            <div class="m-3">
+                <p class="form-check m-3">
+                    <input class="form-check-input" @bind="model.RememberMe" type="checkbox" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Remember Me
+                    </label>
+                </p>
+                <p class="m-3">
+                    <button id="cool-down-btn" class="btn btn-primary">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        Login
+                    </button>
+
+                    <div id="attempts-notice"></div>
+                </p>
+            </div>
+        </EditForm>
+    </div>
+
+        <div class="text-center">
+            <p style="font-weight: bold;">
+                Please log in to view your information. To request that your account be deleted, please email me.
+            </p>
+        </div>
+
+        <div class="text-center">
+            <p>Don't have an account?
+                <a href="https://leoums.dev/register" target="_blank" rel="noopener noreferrer">
+                    Register Here
+                </a>
+            </p>
+        </div>
     }
 
-    if (response.Flag)
+
+@code {
+    private bool jsReady = false;
+    private bool isPasswordVisible = false;
+    private string passwordType => isPasswordVisible ? "text" : "password";
+    private string iconClass => isPasswordVisible ? "fa-eye" : "fa-eye-slash";
+    private bool loading = false;
+    private LoginDTO model = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return new HandyLoginResponse(Flag: response.Flag,  Message: response.Message, OnSuccess: () => {
+        if (firstRender)
+        {
+            jsReady = true;
+            StateHasChanged();
+        }
+    }
+
+    private void TogglePasswordVisibility(MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs != null)
+        {
+            isPasswordVisible = !isPasswordVisible;
+        }
+    }
+
+    private async Task TogglePasswordVisibility(KeyboardEventArgs e)
+    {
+        // Check if the pressed key is either "Space" or "Enter"
+        if (e.Key == " " || e.Key == "Enter")
+        {
+            // Toggle the password visibility
+            isPasswordVisible = !isPasswordVisible;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var response = await accountService.LoginAsync(new LoginDTO
+        {
+            Email = model.Email,
+            Password = model.Password,
+            RememberMe = model.RememberMe,
+        });
+
+        Console.WriteLine("response.Flag: "+response.Flag);
+        Console.WriteLine("response.Message: "+response.Message);
+        Console.WriteLine("response.Token: "+response.Token);
+
+        if (response.Flag && string.IsNullOrWhiteSpace(response.Token))
+        {
+            NavigationManager.NavigateTo($"verify-2fa?email={Uri.EscapeDataString(model.Email)}&rememberMe={model.RememberMe}",true);
+            return;
+        }
+
+        await Task.Delay(30_000);
+
+        if (response.Flag)
+        {
             NavigationManager.NavigateTo("passwords", true);
-        }, OnFailure: default!);
+        }
+        else
+        {
+            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", response.Message, "Error");
+            await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
+        }
     }
+}
 
-    return new HandyLoginResponse(Flag: false,  Message: response.Message, OnSuccess: default!, OnFailure: default!);
 
-    
-})" />
-
-<div class="text-center">
-    <p>Don't have an account?
-        <a href="https://leoums.dev/register" target="_blank"
-            rel="noopener noreferrer">
-            Register Here
-        </a>
-    </p>
-</div>
 

@@ -1,7 +1,6 @@
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Client.Utils;
-using HandyBlazorComponents.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
@@ -18,13 +17,11 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     private readonly HttpClient httpClient;
     private readonly ILocalStorageService localStorageService;
     private readonly ISessionStorageService sessionStorageService;
-    private readonly HandyBlazorService handyBlazorService;
     private readonly IJSRuntime jsRuntime;
 
-    public ApiAuthenticationStateProvider(IHttpClientFactory httpClientFactory, ILocalStorageService localStorageService, ISessionStorageService sessionStorageService, HandyBlazorService handyBlazorService, IJSRuntime jsRuntime)
+    public ApiAuthenticationStateProvider(IHttpClientFactory httpClientFactory, ILocalStorageService localStorageService, ISessionStorageService sessionStorageService, IJSRuntime jsRuntime)
     {
         this.sessionStorageService = sessionStorageService;
-        this.handyBlazorService = handyBlazorService;
         this.jsRuntime = jsRuntime;
         httpClient = httpClientFactory.CreateClient(Constants.HTTP_CLIENT);
         this.localStorageService = localStorageService;

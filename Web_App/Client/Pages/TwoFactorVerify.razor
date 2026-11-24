@@ -1,66 +1,45 @@
 @page "/verify-2fa"
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Headers
-@using System.Text.Json
 @using Microsoft.AspNetCore.WebUtilities
 @using static Shared.Models.ServiceResponses
 
 
 <h3>Two-Factor Authentication</h3>
 
-@if (!string.IsNullOrEmpty(ErrorMessage))
+<div id="cooldown-timer" class="text-danger"></div>
+
+@if (isJsReady)
 {
-    <div class="alert alert-danger">@ErrorMessage</div>
+    <EditForm Model="twoFactorModel" OnValidSubmit="SubmitCode">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="code">Enter 2FA Code</label>
+            <InputText id="code" class="form-control" @bind-Value="twoFactorModel.Code" />
+            <small class="form-text text-muted">Check your email for the code.</small>
+        </div>
+
+        <button id="cool-down-btn" type="submit" class="btn btn-primary">
+            @(IsSubmitting ? "Verifying..." : "Verify")
+        </button>
+
+        <div id="attempts-notice"></div>
+
+    </EditForm>
 }
 
-<EditForm Model="twoFactorModel" OnValidSubmit="SubmitCode">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label for="code">Enter 2FA Code</label>
-        <InputText id="code" class="form-control" @bind-Value="twoFactorModel.Code" />
-        <small class="form-text text-muted">Check your email for the code.</small>
-    </div>
-
-    <button type="submit" class="btn btn-primary" disabled="@(cooldownTimer?.IsCoolingDown ?? false || IsSubmitting)">
-        @(IsSubmitting ? "Verifying..." : "Verify")
-    </button>
-
-    @if (!string.IsNullOrWhiteSpace(attemptsNotice))
-    {
-        <p class="text-danger m-3">
-            @attemptsNotice
-        </p>
-    }
-</EditForm>
-
-<CooldownTimer @ref="cooldownTimer" CooldownTime="coolDownSeconds" MaxAttempts="maxVerifyCount" OnCooldownComplete="@(() => {
-    verifyCount = 0;
-    ErrorMessage = ""; // Clear any previous error messages
-    attemptsNotice = "";
-    StateHasChanged();
-})" />
-
-<StackedHandyToast @ref="stackedHandyToast" Title="Success" Message="Your operation completed successfully."
-    ToastType="HandyToastType.SUCCESS" Duration="5" Position="HandyToastPosition.CENTER_ALIGN" />
 
 
 @code {
-    
+
     [Parameter] public bool RememberMe { get; set; }
-    private string ErrorMessage = string.Empty;
     private bool IsSubmitting = false;
     private HttpClient httpClient { get; set; } = null!;
+    private bool isJsReady = false;
 
     private TwoFactorModel twoFactorModel = new();
-    private StackedHandyToast stackedHandyToast = default!;
-
-    private CooldownTimer cooldownTimer = default!;
-    private int verifyCount = 0;
-    private int maxVerifyCount = 5; // e.g., 5 attempts
-    private int coolDownSeconds = 5;
-    private string attemptsNotice = "";
 
     private class TwoFactorModel
     {
@@ -69,6 +48,14 @@
         public string Code { get; set; } = null!;
 
         public string Email { get; set; } = null!;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isJsReady = true;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -94,18 +81,19 @@
 
         if (responseContent.Flag)
         {
-            _ = stackedHandyToast.ShowToastAsync("Success", "Check your email for the code.", HandyToastType.SUCCESS);
+            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "success", "Check your email for the code.", "Success");
         }
         else
         {
-            _ = stackedHandyToast.ShowToastAsync("Error", responseContent.Message, HandyToastType.ERROR);
+            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", responseContent.Message, "Error");
         }
     }
 
     private async Task SubmitCode()
     {
         IsSubmitting = true;
-        ErrorMessage = null!;
+
+        await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", "");
 
         try
         {
@@ -131,21 +119,18 @@
             }
             else
             {
-                ErrorMessage = !string.IsNullOrEmpty(response.Message) ? response.Message : "Invalid 2FA code.";
+                await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", !string.IsNullOrEmpty(response.Message) ? response.Message : "Invalid 2FA code.");
+                await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.InnerException?.Message);
-            Console.WriteLine(ex.Message);
-            ErrorMessage = $"Either the code has expired or is invalid. Please try again.";
+            await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", "Either the code has expired or is invalid. Please try again.");
+            await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
         }
         finally
         {
-            cooldownTimer.IncrementSubmissionCount();
-            attemptsNotice = $"{++verifyCount} of {maxVerifyCount} attempts";
             IsSubmitting = false;
         }
     }
-
 }

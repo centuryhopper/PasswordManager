@@ -30,15 +30,16 @@ window.NOTIFY = {
                 .pw-table th { text-align: left; padding: 4px; font-size: .9rem; }
                 .pw-table td { padding: 4px; }
                 .pw-input { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+                .add-rows-input { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
                 .pw-remove { border: none; background: #f44336; color: #fff; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
                 .pw-add { margin-top: 8px; border: none; background: #4caf50; color: #fff; border-radius: 4px; padding: 6px 12px; cursor: pointer; }
             </style>
-            <div class="d-flex flex-row>
-                <div class="m-2">
-                    <input id="num-rows type="number" max=40 min=0>
+            <div class="row">
+                <div class="col-8 p-2">
+                    <input class="add-rows-input" id="num-rows" type="number" max="40" min="0" step="1" placeholder="Enter a number between 1 and 39">
                 </div>
-                <div class="m-2">
-                    <button class="btn btn-info">Add rows</button>
+                <div class="col-4 p-2">
+                    <button id="add-rows" class="btn btn-info">Add rows</button>
                 </div>
             </div>
             <table class="pw-table">
@@ -51,12 +52,11 @@ window.NOTIFY = {
             focusConfirm: false,
             didOpen: (popup) =>
             {
-                const tbody = $(popup).find("#pw-rows");
+                const tbody = $(popup).find("#pw-rows")
                 const addRowBtn = $('#pw-add')
                 const removeRowBtn = $('.pw-remove')
-                addRowBtn.on("click", function ()
-                {
-                    tbody.append(rowHtml())
+                const addrowsInput = $('#num-rows')
+                const bindEventHandlers = () => {
                     const latestAddedRowRemoveBtn = tbody.children().last().find(".pw-remove")
                     latestAddedRowRemoveBtn.trigger('focus')
                     latestAddedRowRemoveBtn.on("click", function () 
@@ -66,6 +66,31 @@ window.NOTIFY = {
                             $(this).closest('tr').remove()
                         }
                     });
+                }
+                $('#add-rows').on('click',function(){
+                    // get number of rows user entered and add to table
+                    const numRows = addrowsInput.val()
+                    if (numRows > 39 || numRows < 1)
+                    {
+                        toastr.error('Please enter a number between 1 and 39')
+                        return;
+                    }
+                    if (tbody.children('tr').length > 40)
+                    {
+                        toastr.error('You can only add up to 40 rows at a time')
+                        return;
+                    }
+                    for (let i=0;i<numRows;i++)
+                    {
+                        tbody.append(rowHtml())
+                        bindEventHandlers()
+                    }
+                    addrowsInput.val('')
+                })
+                addRowBtn.on("click", function ()
+                {
+                    tbody.append(rowHtml())
+                    bindEventHandlers()
                 });
                 removeRowBtn.on("click", function () 
                 {
