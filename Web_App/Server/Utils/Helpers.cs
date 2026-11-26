@@ -39,7 +39,7 @@ public static class Helpers
         {
             client.Connect("smtp.gmail.com", 465, true);
             client.Authenticate(senderEmail, senderPassword);
-            var res = client.Send(msg);
+            var res = client.Send(new SmtpSendRequest(msg));
         }
         catch (System.Exception ex)
         {
@@ -81,7 +81,7 @@ public static class Helpers
         {
             await client.ConnectAsync("smtp.gmail.com", 465, true);
             await client.AuthenticateAsync(senderEmail, senderPassword);
-            var res = await client.SendAsync(msg);
+            var res = await client.SendAsync(new SmtpSendRequest(msg));
         }
         catch (System.Exception ex)
         {

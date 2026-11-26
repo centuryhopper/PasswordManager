@@ -7,7 +7,6 @@
 
 <h3>Two-Factor Authentication</h3>
 
-<div id="cooldown-timer" class="text-danger"></div>
 
 @if (isJsReady)
 {
@@ -26,7 +25,8 @@
         </button>
 
         <div id="attempts-notice"></div>
-
+        <div id="errMsg" class="text-danger"></div>
+        <div id="cooldown-timer" class="text-danger"></div>
     </EditForm>
 }
 
@@ -81,11 +81,11 @@
 
         if (responseContent.Flag)
         {
-            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "success", "Check your email for the code.", "Success");
+            await toastService.Success("Success","Check your email for the code.");
         }
         else
         {
-            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", responseContent.Message, "Error");
+            await toastService.Error("Error", responseContent.Message);
         }
     }
 

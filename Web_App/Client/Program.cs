@@ -40,9 +40,9 @@ builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddRadzenComponents();
 
+builder.Services.AddSingleton<ToastService>();
+builder.Services.AddSingleton<SwalService>();
 
-
-// builder.Services.AddBlazorBootstrap();
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();

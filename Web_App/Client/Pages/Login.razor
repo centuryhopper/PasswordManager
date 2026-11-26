@@ -9,7 +9,6 @@
 @if (jsReady)
 {
     <div class="container">
-        <div id="cooldown-timer" class="text-danger"></div>
         <EditForm Model="@model" OnValidSubmit="HandleSubmit">
             <div class="card">
                 <h4 class="card-header">Login</h4>
@@ -56,6 +55,8 @@
                     </button>
 
                     <div id="attempts-notice"></div>
+                    <div id="errMsg" class="text-danger"></div>
+                    <div id="cooldown-timer" class="text-danger"></div>
                 </p>
             </div>
         </EditForm>
@@ -121,9 +122,9 @@
             RememberMe = model.RememberMe,
         });
 
-        Console.WriteLine("response.Flag: "+response.Flag);
-        Console.WriteLine("response.Message: "+response.Message);
-        Console.WriteLine("response.Token: "+response.Token);
+        //Console.WriteLine("response.Flag: "+response.Flag);
+        //Console.WriteLine("response.Message: "+response.Message);
+        //Console.WriteLine("response.Token: "+response.Token);
 
         if (response.Flag && string.IsNullOrWhiteSpace(response.Token))
         {
@@ -131,7 +132,7 @@
             return;
         }
 
-        await Task.Delay(30_000);
+        // await Task.Delay(30_000);
 
         if (response.Flag)
         {
@@ -139,7 +140,8 @@
         }
         else
         {
-            await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", response.Message, "Error");
+            // await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", response.Message, "Error");
+            await toastService.Error(toastTitle: "Error", response.Message);
             await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
         }
     }

@@ -15,6 +15,7 @@ const cooldownObj = () =>
         $('#attempts-notice').text('')
         $('#cool-down-btn').prop('disabled', false)
         $('#cooldown-timer').text('')
+        $('#errMsg').text('')
         erMsg = ''
     }
 
@@ -24,7 +25,8 @@ const cooldownObj = () =>
         generateAttemptsNotice()
         {
             countsSoFar += 1
-            attemptsNotice = `${countsSoFar} of ${MAX_VERIFY_COUNT} attempts`
+            // make sure we don't display a count that goes over our MAX_VERIFY_COUNT
+            attemptsNotice = `${Math.min(countsSoFar, MAX_VERIFY_COUNT)} of ${MAX_VERIFY_COUNT} attempts`
             $('#attempts-notice').text(attemptsNotice)
 
             if (countsSoFar >= MAX_VERIFY_COUNT)
@@ -54,6 +56,7 @@ const cooldownObj = () =>
         setErrMsg(val)
         {
             erMsg = val
+            $('#errMsg').text(val)
         },
     }
 }

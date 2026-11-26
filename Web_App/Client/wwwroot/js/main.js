@@ -6,80 +6,101 @@
 
 // console.log('main called')
 
-function getActiveElementClass() {
+function getActiveElementClass()
+{
   return document.activeElement?.className || "";
 }
 
-function resetBeforeUnloads() {
+function resetBeforeUnloads()
+{
   window.removeEventListener("beforeunload", handleBeforeUnload);
 }
 
-function handleBeforeUnload(event) {
+function handleBeforeUnload(event)
+{
   event.preventDefault();
   event.returnValue = "";
 }
 
 // IMPORTANT: Developers should only be calling methods within these objects below from blazor
 
-FORM_HANDLING = {
-  getForms: () => {
+window.FORM_HANDLING = {
+  getForms: () =>
+  {
     let forms = document.querySelectorAll("form");
     //console.log(forms);
-    const trackFormDirtiness = (form) => {
+    const trackFormDirtiness = (form) =>
+    {
       let isDirty = false;
       const initialValues = {};
 
       // Store initial values
-      Array.from(form.elements).forEach((element) => {
-        if (element.name) {
+      Array.from(form.elements).forEach((element) =>
+      {
+        if (element.name)
+        {
           initialValues[element.name] = element.value;
         }
       });
 
       // Input change handler
-      function checkDirty() {
-        isDirty = Array.from(form.elements).some((element) => {
+      function checkDirty()
+      {
+        isDirty = Array.from(form.elements).some((element) =>
+        {
           return element.value !== initialValues[element.name];
         });
 
         // console.log('isDirty: '+isDirty);
 
-        if (isDirty) {
+        if (isDirty)
+        {
           window.addEventListener("beforeunload", handleBeforeUnload);
-        } else {
+        } else
+        {
           window.removeEventListener("beforeunload", handleBeforeUnload);
         }
       }
 
-      form.addEventListener("input", () => {
+      form.addEventListener("input", () =>
+      {
         checkDirty();
       });
-      form.addEventListener("submit", () => {
+      form.addEventListener("submit", () =>
+      {
         isDirty = false;
         resetBeforeUnloads();
       });
     };
 
-    forms.forEach((f) => {
+    forms.forEach((f) =>
+    {
       trackFormDirtiness(f);
     });
   },
 };
 
-SESSION_FUNCTIONS = {
-  run: (basePath, idleTimeOut, id, JWT_TOKEN_NAME, JWT_TOKEN_EXP_DATE_NAME) => {
+window.SESSION_FUNCTIONS = {
+  _started: {},
+  run: (basePath, idleTimeOut, id, JWT_TOKEN_NAME, JWT_TOKEN_EXP_DATE_NAME) =>
+  {
+    if (SESSION_FUNCTIONS._started[id]) return;
+    SESSION_FUNCTIONS._started[id] = true;
     let jwtTimeout = undefined;
     let idleTimer = undefined;
     let countDownInterval = undefined;
     let startIdleTimerTimeout = undefined;
-    const resetAllTimers = () => {
+
+    const resetAllTimers = () =>
+    {
       clearInterval(countDownInterval);
       clearTimeout(jwtTimeout);
       clearTimeout(idleTimer);
       clearTimeout(startIdleTimerTimeout);
     };
 
-    const showSessionExpiredPopup = (msg) => {
+    const showSessionExpiredPopup = (msg) =>
+    {
       localStorage.removeItem(JWT_TOKEN_NAME);
       localStorage.removeItem(JWT_TOKEN_EXP_DATE_NAME);
       sessionStorage.removeItem(JWT_TOKEN_NAME);
@@ -95,24 +116,27 @@ SESSION_FUNCTIONS = {
           showCancelButton: false,
           confirmButtonText: "Click here to start again",
         })
-        .then((result) => {
-          if (result.isConfirmed) {
+        .then((result) =>
+        {
+          if (result.isConfirmed)
+          {
             window.location.href = basePath;
           }
         });
     };
 
-    const monitorJwtToken = () => {
+    const monitorJwtToken = () =>
+    {
       clearTimeout(jwtTimeout);
       // avoid checking for jwt expiring when modal is up
-      if (swal.isVisible()) {
-        //console.log("sweet alert pop up is open");
+      if (swal.isVisible())
+      {
         return;
       }
       let storedTimestamp = localStorage.getItem(JWT_TOKEN_EXP_DATE_NAME);
       storedTimestamp ??= sessionStorage.getItem(JWT_TOKEN_EXP_DATE_NAME);
-      //console.log('storedTimestamp: ' + storedTimestamp);
-      if (!storedTimestamp) {
+      if (!storedTimestamp)
+      {
         // If there's no session expiration data, recheck in 10 seconds
         jwtTimeout = setTimeout(monitorJwtToken, 10000);
         return;
@@ -120,23 +144,20 @@ SESSION_FUNCTIONS = {
       storedTimestamp = Number(storedTimestamp) / 1000;
       // Get current time in seconds
       let currentTime = Math.floor(Date.now() / 1000);
-      // console.log(basePath);
-      // console.log(currentTime - storedTimestamp);
-      if (currentTime >= storedTimestamp) {
-        // console.log('session expired');
+      if (currentTime >= storedTimestamp)
+      {
         // Redirect to session expired page
-
-        // console.log('token expired');
         showSessionExpiredPopup("Your token has Expired.");
-      } else {
+      } else
+      {
         // Convert to milliseconds
         const timeLeft = (storedTimestamp - currentTime) * 1000;
-        // console.log('timeLeft: ' + timeLeft);
         jwtTimeout = setTimeout(monitorJwtToken, timeLeft); // Re-check at expiration time
       }
     };
 
-    const startIdleTimer = () => {
+    const startIdleTimer = () =>
+    {
       // give one minute warning
       /*
           timeout - warningtime = 60000
@@ -151,7 +172,8 @@ SESSION_FUNCTIONS = {
       getJwt ??= sessionStorage.getItem(JWT_TOKEN_NAME);
 
       // make sure to only run idletimer if user is authenticated
-      if (!getJwt) {
+      if (!getJwt)
+      {
         // check again in 10 seconds (I arbitrarily chose 10 seconds)
         startIdleTimerTimeout = setTimeout(startIdleTimer, 10000);
         return;
@@ -166,12 +188,15 @@ SESSION_FUNCTIONS = {
           ? SESSION_DISPLAY_TIME_IN_MILLISECONDS
           : idleTimeOut - 10000;
 
-      function restartIdleTimer() {
-        const showWarning = async () => {
+      function restartIdleTimer()
+      {
+        const showWarning = async () =>
+        {
           let timeLeftInSeconds = warningTime / 1000;
           // console.log('showing warning');
           // this is a check to avoid this popup if another pop up is already up such as the token expired pop up
-          if (swal.isVisible()) {
+          if (swal.isVisible())
+          {
             resetAllTimers();
             return;
           }
@@ -185,22 +210,27 @@ SESSION_FUNCTIONS = {
             showCancelButton: true,
             confirmButtonText: "Stay Logged In",
             cancelButtonText: "Logout",
-            didOpen: () => {
+            didOpen: () =>
+            {
               const countdownEl = document.getElementById("countdown");
-              countDownInterval = setInterval(() => {
+              countDownInterval = setInterval(() =>
+              {
                 timeLeftInSeconds--;
                 //console.log(timeLeftInSeconds);
                 countdownEl.innerText = timeLeftInSeconds;
-                if (timeLeftInSeconds <= 0) {
+                if (timeLeftInSeconds <= 0)
+                {
                   swal.close();
                   showSessionExpiredPopup("Your session has Expired.");
                 }
               }, 1000);
             },
           });
-          if (result.isConfirmed) {
+          if (result.isConfirmed)
+          {
             restartIdleTimer();
-          } else {
+          } else
+          {
             showSessionExpiredPopup("Your session has Expired.");
           }
         };
@@ -215,28 +245,36 @@ SESSION_FUNCTIONS = {
       }
 
       // Reset timer on user activity
-      window.addEventListener("mousemove", () => {
+      window.addEventListener("mousemove", () =>
+      {
         //console.log('moved mouse');
         // avoid resetting timer while any of the swal pop ups are open
-        if (!swal.isVisible()) {
+        if (!swal.isVisible())
+        {
           restartIdleTimer();
         }
       });
-      window.addEventListener("keydown", () => {
+      window.addEventListener("keydown", () =>
+      {
         //console.log('keydowned');
-        if (!swal.isVisible()) {
+        if (!swal.isVisible())
+        {
           restartIdleTimer();
         }
       });
-      window.addEventListener("scroll", () => {
+      window.addEventListener("scroll", () =>
+      {
         //console.log('scrolled');
-        if (!swal.isVisible()) {
+        if (!swal.isVisible())
+        {
           restartIdleTimer();
         }
       });
-      window.addEventListener("click", () => {
+      window.addEventListener("click", () =>
+      {
         //console.log('clicked');
-        if (!swal.isVisible()) {
+        if (!swal.isVisible())
+        {
           restartIdleTimer();
         }
       });
@@ -245,10 +283,12 @@ SESSION_FUNCTIONS = {
       restartIdleTimer();
     };
 
-    if (!id || ![1, 2].includes(Number(id))) {
+    if (!id || ![1, 2].includes(Number(id)))
+    {
       return;
     }
-    switch (Number(id)) {
+    switch (Number(id))
+    {
       case 1:
         monitorJwtToken();
         break;
@@ -273,7 +313,8 @@ UI = {
 };
 
 FILE = {
-  downloadFile: (base64Data, contentType, fileName) => {
+  downloadFile: (base64Data, contentType, fileName) =>
+  {
     const blob = new Blob(
       [Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0))],
       { type: contentType },
@@ -292,7 +333,8 @@ FILE = {
     document.body.removeChild(a);
   },
 
-  saveAsFile: (filename, fileContent) => {
+  saveAsFile: (filename, fileContent) =>
+  {
     var link = document.createElement("a");
     link.download = filename;
     // mime-types: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
