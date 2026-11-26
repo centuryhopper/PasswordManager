@@ -4,7 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>fa3b19cf-b384-4c20-953e-c46b678d1aa4</UserSecretsId>
+    <!-- <UserSecretsId>fa3b19cf-b384-4c20-953e-c46b678d1aa4</UserSecretsId> -->
+    <UserSecretsId>d1cacd24-ad68-4d0b-9a85-60a0bd8db58c</UserSecretsId>
+<!-- %APPDATA%\Microsoft\UserSecrets\d1cacd24-ad68-4d0b-9a85-60a0bd8db58c\ -->
   </PropertyGroup>
 
   <ItemGroup>

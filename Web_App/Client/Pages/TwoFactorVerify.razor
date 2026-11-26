@@ -1,6 +1,7 @@
 @page "/verify-2fa"
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Headers
+@using Client.Components
 @using Microsoft.AspNetCore.WebUtilities
 @using static Shared.Models.ServiceResponses
 
@@ -24,9 +25,7 @@
             @(IsSubmitting ? "Verifying..." : "Verify")
         </button>
 
-        <div id="attempts-notice"></div>
-        <div id="errMsg" class="text-danger"></div>
-        <div id="cooldown-timer" class="text-danger"></div>
+        <CoolDownMessageDisplay />
     </EditForm>
 }
 
@@ -81,7 +80,7 @@
 
         if (responseContent.Flag)
         {
-            await toastService.Success("Success","Check your email for the code.");
+            await toastService.Success("Success", "Check your email for the code.");
         }
         else
         {
@@ -92,9 +91,7 @@
     private async Task SubmitCode()
     {
         IsSubmitting = true;
-
-        await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", "");
-
+        
         try
         {
             var response = await httpClient.GetFromJsonAsync<LoginResponse>("api/Account/login-with-2fa?email=" +
@@ -119,13 +116,13 @@
             }
             else
             {
-                await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", !string.IsNullOrEmpty(response.Message) ? response.Message : "Invalid 2FA code.");
+                await toastService.Error("Error", !string.IsNullOrEmpty(response.Message) ? response.Message : "Invalid 2FA code.");
                 await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
             }
         }
         catch (Exception ex)
         {
-            await jsRuntime.InvokeVoidAsync("cooldown.setErrMsg", "Either the code has expired or is invalid. Please try again.");
+            await toastService.Error("Error", "Either the code has expired or is invalid. Please try again.");
             await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
         }
         finally

@@ -89,15 +89,6 @@
         await jsRuntime.InvokeVoidAsync("SESSION_FUNCTIONS.run",
             NavigationManager.BaseUri, IdleTimeoutMs, 2, JwtConfig.JWT_TOKEN_NAME, JwtConfig.JWT_TOKEN_EXP_DATE_NAME);
     }
-
-    //private async Task Logout()
-    //{
-    //    // Implement your logout logic here
-    //    // For example, you might call a logout API and then navigate to the login page
-    //    await Task.Run(() =>
-    //    {
-    //        // Custom logout logic here
-    //    });
-    //    Navigation.NavigateTo("login", forceLoad: true);
-    //}
 }
+
+

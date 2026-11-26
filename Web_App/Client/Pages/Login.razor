@@ -1,4 +1,5 @@
 @page "/login"
+@using Client.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using static Shared.Models.ServiceResponses
 @inject IAccountService accountService
@@ -54,9 +55,7 @@
                         Login
                     </button>
 
-                    <div id="attempts-notice"></div>
-                    <div id="errMsg" class="text-danger"></div>
-                    <div id="cooldown-timer" class="text-danger"></div>
+                    <CoolDownMessageDisplay />
                 </p>
             </div>
         </EditForm>
@@ -132,15 +131,12 @@
             return;
         }
 
-        // await Task.Delay(30_000);
-
         if (response.Flag)
         {
             NavigationManager.NavigateTo("passwords", true);
         }
         else
         {
-            // await jsRuntime.InvokeVoidAsync("NOTIFY.toast", "error", response.Message, "Error");
             await toastService.Error(toastTitle: "Error", response.Message);
             await jsRuntime.InvokeVoidAsync("cooldown.generateAttemptsNotice");
         }
